@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data combined="FALSE" norm="90% Winsorizing" offset="50" reactive="AC" remap="0" scoring="Rouskin" tool="rf-norm" win="50">
+	<transcript id="chrIV:399361-399484" length="123">
+		<sequence>
+			GTATGTTGTTGATATTTTTAGTGTTTGTGGAGGCAATTGAGCTCGGTGCCCCTTTTGGCT
+			TTGCCTCTTTTGCATTTTAGTTCTTTTACCCCTATATTATTAATACTAACCATCTCGATA
+			TAG
+		</sequence>
+		<reactivity>
+			NaN,NaN,0.513,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.385,NaN,0.410,NaN,NaN,NaN,NaN,NaN,0.487,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.564,NaN,NaN,0.282,0.385,0.641,NaN,NaN,NaN,0.795,NaN,0.410,NaN,1.000,NaN,NaN,NaN,NaN,0.333,0.538,1.000,0.949,NaN,NaN,NaN,NaN,NaN,NaN,0.410,NaN,
+			NaN,NaN,NaN,0.667,0.190,NaN,0.718,NaN,NaN,NaN,NaN,NaN,0.308,0.564,NaN,NaN,NaN,NaN,0.590,NaN,NaN,NaN,0.846,NaN,NaN,NaN,NaN,1.000,0.821,0.231,0.436,0.436,NaN,1.000,NaN,0.692,NaN,NaN,0.949,NaN,NaN,1.000,0.385,NaN,0.564,0.410,NaN,0.462,0.308,0.190,0.385,0.462,NaN,0.282,NaN,0.487,NaN,0.231,NaN,0.590,
+			NaN,0.190,NaN
+		</reactivity>
+	</transcript>
+</data>

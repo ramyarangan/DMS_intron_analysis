@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data combined="FALSE" norm="90% Winsorizing" offset="50" reactive="AC" remap="0" scoring="Rouskin" tool="rf-norm" win="50">
+	<transcript id="chrXVI:218646-218746" length="100">
+		<sequence>
+			GTATGTCTAGCTCACAGCATGTGTTCCAAATACATTAAAGAAGATCTCTTTTGTTGTTGA
+			TACTAACCAGTAAAGTTGAGAGTTATAACAATGAAAATAG
+		</sequence>
+		<reactivity>
+			NaN,NaN,0.132,NaN,NaN,NaN,0.331,NaN,0.662,NaN,0.464,NaN,0.132,0.199,0.265,0.000,NaN,0.596,0.132,NaN,NaN,NaN,NaN,NaN,NaN,0.265,0.662,0.530,0.596,0.464,NaN,0.530,0.397,0.397,NaN,NaN,0.397,0.530,0.927,NaN,0.530,1.000,NaN,0.000,NaN,0.132,NaN,0.265,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.927,
+			NaN,0.331,1.000,NaN,0.728,0.199,0.596,0.464,0.596,NaN,NaN,0.132,0.795,0.596,NaN,NaN,NaN,NaN,1.000,NaN,0.000,NaN,NaN,NaN,0.331,NaN,0.397,0.728,0.530,0.000,0.927,NaN,NaN,0.265,0.132,0.530,0.861,NaN,0.000,NaN
+		</reactivity>
+	</transcript>
+</data>
