@@ -6,9 +6,7 @@ import numpy as np
 from scipy.stats import pearsonr
 from matplotlib import pyplot as plt 
 
-# 1971 is the requirement per replicate, so we ask for twice this total
-# Note - coverage in the extended alignment file is from both replicates
-COV_CUTOFF = 1971 * 2
+COV_CUTOFF = 1971
 
 # Parameters for calculating accessibility of key sequences
 FIVESS_LEN = 6
