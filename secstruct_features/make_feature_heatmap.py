@@ -39,8 +39,8 @@ fasta_file = "../intron_annot/standard_introns.fa"
 secstruct_dir = "rnastructure_sherlock_1221/intron/"
 dat_file = "../intron_annot/standard_introns.dat"
 reac_cov_dir = "../analyze_run/combined_1221/reactivity/reactivity_intron/"
-mld_stats_file = "mld_cache/intron_1221.txt"
-# mld_stats_file = ""
+mpl_stats_file = "mpl_cache/intron_1221.txt"
+# mpl_stats_file = ""
 extended_dat_file = "../intron_annot/standard_allsize_extend50_baseinfo.dat"
 extended_reac_dir = "../analyze_run/combined_1221/reactivity/reactivity_allsize_extend50/"
 mut_freq_file = '../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt'
@@ -62,9 +62,9 @@ def get_features_df():
 
 		intron_len = get_length(name, fasta_file)
 
-		mld = get_mld_from_file(name, mld_stats_file, reac_cov_dir)
+		mpl = get_mpl_from_file(name, mpl_stats_file, reac_cov_dir)
 		
-		feature_vals += [mld * intron_len]
+		feature_vals += [mpl * intron_len]
 		
 		longest_stem_len = get_longest_stem_len(name, fasta_file, secstruct_dir, reac_cov_dir)
 
@@ -208,6 +208,12 @@ def make_heatmap():
 	# pd.set_option("display.max_rows", None, "display.max_columns", None)
 	g = sns.clustermap(feature_df, row_linkage=row_linkage, method='ward', \
 		col_cluster=False, cmap="BuGn", row_colors=row_colors, cbar_kws={"ticks": [], "shrink": 0.5})
+
+	f = open("dendrogram_order.txt", 'w')
+	for ii in g.dendrogram_row.reordered_ind:
+		f.write("%d\n" % ii)
+	f.close()
+
 	plt.show()
 
 
@@ -262,10 +268,10 @@ def write_table_csv(csv_filename):
 		if has_either_stem:
 			num_either_stem += 1
 
-		mld = get_mld_from_file(name, mld_stats_file, reac_cov_dir)
+		mpl = get_mpl_from_file(name, mpl_stats_file, reac_cov_dir)
 		csv_str += ","
-		if mld > 0:
-			csv_str += '{0:.3f}'.format(mld)
+		if mpl > 0:
+			csv_str += '{0:.3f}'.format(mpl)
 
 		longest_stem_len = get_longest_stem_len(name, fasta_file, secstruct_dir, reac_cov_dir)
 		csv_str += ","

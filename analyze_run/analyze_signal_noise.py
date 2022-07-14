@@ -1,7 +1,7 @@
 import numpy as np 
 import sys
 
-exp_read_lens = {'d3': 300, 'd45': 300, 'd45_rrna': 300, 'd': 300, 'nd': 300, 'n3': 300, 'rouskin': 50, 'd3_0.25': 300, 'd45_0.25': 300}
+exp_read_lens = {'d3': 300, 'd': 300, 'nd': 300}
 
 EXP = sys.argv[1] # n3, d3, d45, d
 

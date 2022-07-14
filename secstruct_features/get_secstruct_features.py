@@ -87,7 +87,7 @@ class External(BigNode):
 #    Single nucleotide
 # Used for: MLD calculation (longest shortest paths)
 # Return type: networkx graph, node id to node object dict
-def get_graph(dotbracket, ss_weight=0.5, bp_weight=1):
+def get_graph(dotbracket, ss_weight=0, bp_weight=1):
 	base1_list = []
 	node_dict = {}
 
@@ -459,7 +459,7 @@ def get_nwj(stemG, nt_to_node_dict, bpp_cutoff=0.9, \
 
 	return nwjs
 
-def get_mld_from_graph(G, norm_len, overhang_5p=0, overhang_3p=0):
+def get_mpl_from_graph(G, node_dict, norm_len, overhang_5p=0, overhang_3p=0):
 	path_lens = nx.floyd_warshall(G, weight='weight')
 	max_value = 0
 	for cur_key in path_lens.keys():
@@ -469,10 +469,7 @@ def get_mld_from_graph(G, norm_len, overhang_5p=0, overhang_3p=0):
 		for cur_key2 in path_lens[cur_key].keys():
 			if cur_key2 < overhang_5p or cur_key2 > norm_len - overhang_3p:
 				continue
-			cur_max = max(cur_max, path_lens[cur_key][cur_key2])
-			#if path_lens[cur_key][cur_key2]/(norm_len - overhang_5p - overhang_3p) > 1:
-			#	print(path_lens)
-			#	print("%d %d %d %d\n" % (path_lens[cur_key][cur_key2], cur_key, cur_key2, norm_len))
+			cur_max = max(cur_max, path_lens[cur_key][cur_key2]) 
 		max_value = max(max_value, cur_max)
 
 	return max_value/(norm_len - overhang_5p - overhang_3p)
@@ -572,54 +569,54 @@ def get_num_nwj(tag, fasta_file, secstruct_dir, cov_reac_dir):
 
 	return num_nwj
 
-def get_mld(name, seq, secstruct_dir, cov_reac_dir, overhang_5p=0, overhang_3p=0):
+def get_mpl(name, seq, secstruct_dir, cov_reac_dir, overhang_5p=0, overhang_3p=0):
 	coverage = get_cov(name, cov_reac_dir)
 	
 	dotbracket = get_dotbracket(name, secstruct_dir)
 	if dotbracket is None:
 		return -1
 	G, node_dict = get_graph(dotbracket, ss_weight=1, bp_weight=1)
-	return get_mld_from_graph(G, len(dotbracket), overhang_5p=overhang_5p, \
+	return get_mpl_from_graph(G, node_dict, len(dotbracket), overhang_5p=overhang_5p, \
 		overhang_3p=overhang_3p)
 
-def get_mld_tag(tag, fasta_file, secstruct_dir, cov_reac_dir):
+def get_mpl_tag(tag, fasta_file, secstruct_dir, cov_reac_dir):
 	names, seqs, _, _ = get_names_seqs_from_fasta(fasta_file)
 	coverage = get_cov(tag, cov_reac_dir)
 
 	if coverage < COVERAGE_CUTOFF:
 		return -1
 
-	mld = -1
+	mpl = -1
 	for name in names:
 		if name == tag:
 			dotbracket = get_dotbracket(name, secstruct_dir)
 			if dotbracket is None:
 				return -1
 			G, node_dict = get_graph(dotbracket, ss_weight=1, bp_weight=1)
-			mld = get_mld_from_graph(G, len(dotbracket))
+			mpl = get_mpl_from_graph(G, node_dict, len(dotbracket))
 			break
 
-	return mld
+	return mpl
 
-def get_mld_from_file(tag, mld_stats_file, cov_reac_dir):	
-	f = open(mld_stats_file)
-	mld_lines = f.readlines()
+def get_mpl_from_file(tag, mpl_stats_file, cov_reac_dir):	
+	f = open(mpl_stats_file)
+	mpl_lines = f.readlines()
 	f.close()
 
-	mld = -1
+	mpl = -1
 	
 	coverage = get_cov(tag, cov_reac_dir)
 
 	if coverage < COVERAGE_CUTOFF:
-		return mld
+		return mpl
 
-	for ii in range(int(len(mld_lines)/2)):
-		name = mld_lines[2 * ii].replace('\n', '')
+	for ii in range(int(len(mpl_lines)/2)):
+		name = mpl_lines[2 * ii].replace('\n', '')
 		if name == tag:
-			mld = float(mld_lines[2 * ii + 1])
+			mpl = float(mpl_lines[2 * ii + 1])
 			break
 
-	return mld
+	return mpl
 
 def get_length(tag, fasta_file):
 	_, _, name_to_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)

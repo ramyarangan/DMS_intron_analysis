@@ -4,8 +4,8 @@ from scipy.stats import pearsonr
 from scipy.stats import spearmanr
 from matplotlib import pyplot as plt 
 
-exp_read_counts = {'d3': 557428287, 'd45': 380745898, 'd': 938174185, 'n3': 9871773, 'nd': 169742497, 'rouskin': 296022844}
-exp_read_lens = {'d3': 300, 'd45': 300, 'd': 300, 'nd': 300, 'n3': 300, 'rouskin': 50, 'd3_0.25': 300, 'd45_0.25': 300}
+exp_read_counts = {'d3': 557428287, 'd': 938174185, 'nd': 169742497}
+exp_read_lens = {'d3': 300, 'd': 300, 'nd': 300}
 
 EXP1 = sys.argv[1] # d3
 EXP2 = sys.argv[2] # d45

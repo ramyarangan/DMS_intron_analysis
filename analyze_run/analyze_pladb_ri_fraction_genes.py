@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns 
 import numpy as np
 
-intron_fasta_file = "annot_files/standard_introns.fa"
+intron_fasta_file = "../intron_annot/standard_introns.fa"
 ri_fractions_file = "pladb/ri_fractions.txt"
 intron_stats_file = "pladb/intron_stats.txt"
 

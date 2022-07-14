@@ -14,14 +14,14 @@ fasta_file = sys.argv[1] # "../intron_annot/standard_introns.fa"
 secstruct_dir = sys.argv[2] # 
 cov_reac_dir = sys.argv[3]
 mut_freq_file = sys.argv[4] # '../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt'
-mld_file = sys.argv[5] # 'mld_calculations/intron_properties_600_cutoff_1221.txt'
+mpl_file = sys.argv[5] # 'mpl_calculations/intron_properties_600_cutoff_1221.txt'
 dat_file = sys.argv[6] # "../intron_annot/standard_introns.dat"
 
 fasta_file_coding = sys.argv[7]
 secstruct_dir_coding = sys.argv[8]
 cov_reac_dir_coding = sys.argv[9]
 mut_freq_file_coding = sys.argv[10] # '../analyze_run/combined_1221/rfcount/nd_coding_dedup_view.txt'
-mld_file_coding = sys.argv[11] # 'mld_calculations/coding_properties_600_cutoff.txt'
+mpl_file_coding = sys.argv[11] # 'mpl_calculations/coding_properties_600_cutoff.txt'
 
 
 OVERHANG = 0
@@ -111,9 +111,9 @@ def get_all_longest_stems(names, cov_reac_dir, secstruct_dir, do_overhang=True):
 
 	return all_longest_stems
 
-def write_mld_to_file(fasta_file, mld_file, secstruct_dir, cov_reac_dir, \
+def write_mpl_to_file(fasta_file, mpl_file, secstruct_dir, cov_reac_dir, \
 	do_overhang=True):
-	f = open(mld_file, 'w')
+	f = open(mpl_file, 'w')
 	
 	names, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
 
@@ -123,30 +123,30 @@ def write_mld_to_file(fasta_file, mld_file, secstruct_dir, cov_reac_dir, \
 		overhang = 0
 		if do_overhang:
 			overhang = OVERHANG
-		mld = get_mld(name, seq, secstruct_dir, cov_reac_dir, \
+		mpl = get_mpl(name, seq, secstruct_dir, cov_reac_dir, \
 			overhang_5p=overhang, overhang_3p=overhang)
 		f.write("%s\n" % name)
-		f.write("%f\n" % mld)
+		f.write("%f\n" % mpl)
 
 	f.close()
 
-def get_all_mld_from_file(fasta_file, mld_stats_file, min_len=-1):
+def get_all_mpl_from_file(fasta_file, mpl_stats_file, min_len=-1):
 	_, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
 	
-	f = open(mld_stats_file)
-	mld_lines = f.readlines()
+	f = open(mpl_stats_file)
+	mpl_lines = f.readlines()
 	f.close()
 
-	mld_dict = {}
+	mpl_dict = {}
 
-	for ii in range(int(len(mld_lines)/2)):
-		name = mld_lines[2 * ii].replace('\n', '')
+	for ii in range(int(len(mpl_lines)/2)):
+		name = mpl_lines[2 * ii].replace('\n', '')
 		seq_len = len(name_seq_dict[name])
-		mld = float(mld_lines[2 * ii + 1])
-		if mld != -1 and seq_len > min_len:
-			mld_dict[name] = mld
+		mpl = float(mpl_lines[2 * ii + 1])
+		if mpl != -1 and seq_len > min_len:
+			mpl_dict[name] = mpl
 
-	return mld_dict
+	return mpl_dict
 
 def get_all_gini_coeffs(names, name_seq_dict, mut_freq_file, do_overhang=True):
 	all_gini_coeffs = []
@@ -289,21 +289,21 @@ def gini_compare():
 	compare_intron_coding_vals(intron_gini, coding_gini, "Gini Coefficient comparison", 
 		filename='../figures/Gini_5000_cutoff', savefig=False)
 
-def mld_compare():
-	if not os.path.exists(mld_file):
-		write_mld_to_file(fasta_file, mld_file, secstruct_dir, cov_reac_dir)
-	if not os.path.exists(mld_file_coding):
-		write_mld_to_file(fasta_file_coding, mld_file_coding, \
+def mpl_compare():
+	if not os.path.exists(mpl_file):
+		write_mpl_to_file(fasta_file, mpl_file, secstruct_dir, cov_reac_dir)
+	if not os.path.exists(mpl_file_coding):
+		write_mpl_to_file(fasta_file_coding, mpl_file_coding, \
 			secstruct_dir_coding, cov_reac_dir_coding, do_overhang=False)
 
-	intron_mld_dict = get_all_mld_from_file(fasta_file, mld_file, min_len=0)
-	coding_mld_dict = get_all_mld_from_file(fasta_file_coding, mld_file_coding, min_len=0)
-	mld_normalized_intron = list(intron_mld_dict.values())
-	mld_normalized_coding = list(coding_mld_dict.values())
+	intron_mpl_dict = get_all_mpl_from_file(fasta_file, mpl_file, min_len=0)
+	coding_mpl_dict = get_all_mpl_from_file(fasta_file_coding, mpl_file_coding, min_len=0)
+	mpl_normalized_intron = list(intron_mpl_dict.values())
+	mpl_normalized_coding = list(coding_mpl_dict.values())
 
 	print("Mann Whitney U rank test p value comparing normalized MLD:")
-	compare_intron_coding_vals(mld_normalized_intron, mld_normalized_coding, \
-		"MLD normalized by length", filename='../figures/MLD_normalized_violinplot', savefig=False)
+	compare_intron_coding_vals(mpl_normalized_intron, mpl_normalized_coding, \
+		"Normalized Maximum Path Length", filename='../figures/MLD_normalized_violinplot', savefig=False)
 
 def zipper_stem_stats():
 	names, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
@@ -320,9 +320,9 @@ def zipper_stem_stats():
 
 	print("Number of end stems: %d\n" % num_end_stems)
 
-longest_stem_compare()
+# longest_stem_compare()
 # stem_len_compare()
-bpp_compare()
-gini_compare()
+# bpp_compare()
+# gini_compare()
 # zipper_stem_stats()
-mld_compare()
+mpl_compare()
