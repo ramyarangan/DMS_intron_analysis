@@ -1,3 +1,7 @@
+"""
+Utility functions for getting sequences, coverage, secondary structures info,
+reactivities, and splicing levels.
+"""
 import os
 import xml.etree.ElementTree as ET
 import numpy as np

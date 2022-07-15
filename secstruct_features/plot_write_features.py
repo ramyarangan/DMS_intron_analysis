@@ -1,3 +1,8 @@
+"""
+Cluster introns by secondary structure features with hierarchical clustering, tSNE, and PCA. 
+Plot clustering as a heatmap with a dendrogram or as PCA and tSNE components.
+Write a table with all secondary structures and structural features.
+"""
 import sys
 import argparse
 import pandas as pd 

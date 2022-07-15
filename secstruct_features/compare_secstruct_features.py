@@ -1,3 +1,10 @@
+"""
+Run statistical comparisons between intron and coding sequences for all secondary structure metrics
+Make violin plots comparing distributions
+
+Usage example: 
+python compare_secstruct_features.py ../intron_annot/standard_introns.fa rnastructure_sherlock_1221/intron/ ../analyze_run/combined_1221/reactivity/reactivity_intron/ ../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt mpl_cache/intron_1221.txt ../intron_annot/standard_introns.dat ../intron_annot/coding_orfs_introns.fa rnastructure_sherlock_1221/coding_nd/ ../analyze_run/combined_1221/reactivity/reactivity_coding_nd/ ../analyze_run/combined_1221/rfcount/nd_coding_dedup_view.txt mpl_cache/coding_1221.txt
+"""
 import sys
 from matplotlib import pyplot as plt 
 from scipy import stats 
@@ -198,14 +205,6 @@ def get_all_zipper_stem_dG(names, name_seq_dict, secstruct_dir, cov_reac_dir, \
 		dGs += [dG]
 
 	return dGs
-
-def plot_histogram(intron_vals, coding_vals, plt_title):
-	plt.figure(figsize=(4, 3))
-	plt.hist(intron_vals, bins=20, alpha=0.5, label='Intron')
-	plt.hist(coding_vals, bins=20, alpha=0.5, label='Coding')
-	plt.title(plt_title)
-	plt.legend(loc='upper right')
-	plt.show()
 
 def plot_violin_plot(intron_vals, coding_vals, plt_title, savefig=False, filename='', do_inner=True):
 	df = pd.DataFrame(columns=['Intron', 'Coding'])

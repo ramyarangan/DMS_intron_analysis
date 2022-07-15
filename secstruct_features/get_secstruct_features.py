@@ -1,3 +1,14 @@
+"""
+Get secondary structure features for a given sequence tag including: 
+* longest stem
+* maximum path length
+* average stem helix confidence estimates
+* number of NWJs
+
+Constructs two types of graph representations for a secondary structure:
+- Fine-grained graph with base-pairs and single-stranded nucleotides as nodes
+- Coarse-grained graph with stems and junctions as nodes
+"""
 import sys
 import networkx as nx 
 import os

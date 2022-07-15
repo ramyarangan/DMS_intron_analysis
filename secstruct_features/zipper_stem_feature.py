@@ -1,9 +1,5 @@
-import subprocess # For making RNAfold/RNAcofold calls
-import os
-import scipy.stats as stats
-
-import matplotlib.pyplot as plt
-from secstruct_util import *
+"""
+Calculating dG values for zipper stems and end stems.
 
 # This code finds stable stems with dG < DG_LIM that fall within a region that is reasonable
 # in the context of the spliceosome. The viable region must be pre-specified based 
@@ -11,12 +7,21 @@ from secstruct_util import *
 
 # Approach: Starts with reasonably long stems present in the MFE, and then checks the 
 # stability of these stems and a slightly expanded surrounding context with RNAfold or RNAcofold. 
+"""
+import subprocess # For making RNAfold/RNAcofold calls
+import os
+import scipy.stats as stats
+
+import matplotlib.pyplot as plt
+from secstruct_util import *
+
+
 DG_LIM=0
 
 # Region is (lowest start, highest end, total distance max, total distance min)
 # Stem must start after lowest start + start_idx and must end before end_idx - highest end
 FIRST_STEP_REGION = (10, 20, 12+10+20, 55+10+20) # For 5'SS to BP
-SECOND_STEP_REGION = (0, 0, 0, 3000) # (8, 3, 8+3, 3000) # For BP to 3'SS
+SECOND_STEP_REGION = (0, 0, 0, 3000) # For BP to 3'SS
 
 # Gets dictionary of start of BP: end of BP
 def get_base_pairs(secstruct):
@@ -89,13 +94,10 @@ def get_max_stem(secstruct, bulge_size=3):
 def get_stems_region(stems, region, start_idx, end_idx):
 	matching_stems = []
 	(low, high, max_dist, min_dist) = region
-	#print(start_idx)
-	#print(end_idx)
+
 	for stem in stems:
 		(a, b, c, d, n_bps) = stem
-		#print("Stem constraints")
-		#print(a - start_idx)
-		#print(end_idx - d)
+
 		if (a - start_idx) > low and (end_idx - d) > high and \
 			((a - start_idx) + (end_idx - d)) > max_dist and \
 			((a - start_idx) + (end_idx - d)) < min_dist:
@@ -170,10 +172,8 @@ def get_best_bpp(secstruct, stem, bpp_matrix, len_cutoff=4, bpp_thresh=0.7):
 	while ii < stem[1] and cur_end >= stem[2]:
 		if (ii in bps) and (bps[ii] == cur_end):
 			cur_cnt += 1
-			# For now get the maximum base-pairing probability in the stem 
-			# This is what is done to get the VARNA diagrams from Biers
 			total_bpp = max(bpp_matrix[ii][cur_end], total_bpp)
-			# print("%d %d %d %f\n" % (cur_cnt, ii, cur_end, bpp_matrix[ii][cur_end]))
+
 			ii += 1
 			cur_end -= 1
 			continue
@@ -193,8 +193,6 @@ def get_best_bpp(secstruct, stem, bpp_matrix, len_cutoff=4, bpp_thresh=0.7):
 	bpps += [total_bpp]
 	cnts += [cur_cnt]
 
-	#print(cnts)
-	#print(bpps)
 	# How many base-pairs are in stems passing the base-pair probability threshold?
 	best_bpp = 0
 	for ii, cnt in enumerate(cnts):
@@ -205,27 +203,7 @@ def get_best_bpp(secstruct, stem, bpp_matrix, len_cutoff=4, bpp_thresh=0.7):
 
 	if best_bpp > 0:
 		return True, best_bpp
-	# total_bps_passing = 0
-	# total_bpp = 0
-	# for ii, cnt in enumerate(cnts):
-	# 	#print(bpps[ii])
-	# 	if bpps[ii] > bpp_thresh:
-	# 		total_bps_passing += cnt
-	# 		total_bpp = max(total_bpp, bpps[ii])
-# 
-	# if total_bps_passing > len_cutoff:
-	# 	return True, total_bpp # /total_bps_passing
 
-	# total_bps_passing = 0
-	# total_bpp = 0
-	# for ii, cnt in enumerate(cnts):
-	#	print(bpps[ii]/cnt)
-	#	if bpps[ii]/cnt > bpp_thresh:
-	#		total_bps_passing += cnt
-	#		total_bpp += bpps[ii]
-
-	#if total_bps_passing > len_cutoff:
-	#	return True, total_bpp/total_bps_passing
 	return False, -1
 
 
@@ -239,7 +217,6 @@ def get_best_zipper_stem(bp, seq, mfe, bpp_matrix, min_num_bp=8, bpp_cutoff=0.7,
 			len(seq) - overhang_3p) # Second step
 	else:
 		stems_region = get_stems_region(stems, FIRST_STEP_REGION, overhang_5p, bp) # First step
-	#print(stems_region)
 
 	has_zipper_stem = False
 	best_dG = 200 # Some large number
@@ -248,7 +225,6 @@ def get_best_zipper_stem(bp, seq, mfe, bpp_matrix, min_num_bp=8, bpp_cutoff=0.7,
 		if stem[4] < min_num_bp:
 			continue
 		passes_bpp, best_bpp = get_best_bpp(mfe, stem, bpp_matrix)
-		#print(best_bpp)
 		if not passes_bpp:
 			continue
 		dG = 200
@@ -271,9 +247,6 @@ def get_best_zipper_stem_tag(name, fasta_file, secstruct_dir, dat_file, do_secon
 	mfe = get_dotbracket(name, secstruct_dir)
 	bpp_matrix = get_bpp_matrix(name, secstruct_dir)
 	bp = get_bp_loc(name, dat_file)
-	#print(mfe is not None)
-	#print(bpp_matrix is not None)
-	#print(bp)
 
 	has_zipper_stem = False
 	if (mfe is not None) and (bpp_matrix is not None) and (bp > 0):
@@ -301,8 +274,6 @@ def get_best_zipper_stem_tag(name, fasta_file, secstruct_dir, dat_file, do_secon
 		strand2_end = str(chr_start + stem[3] - 1)
 		dG = str(best_dG)
 
-	#print("%s\t%s\t%s\t%s\t%s\t%s\t%s" % (name, chr_num_str, strand1_start, \
-	#	strand1_end, strand2_start, strand2_end, dG))
 	return (name, chr_num_str, strand1_start, strand1_end, strand2_start, strand2_end, dG)
 
 

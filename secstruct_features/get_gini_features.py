@@ -1,3 +1,7 @@
+"""
+Compute Gini index in windows for a sequence
+"""
+
 from os import path
 import numpy as np
 import os

@@ -48,6 +48,7 @@ def get_extended_window_tag_ss_loc(tag, extended_base_data):
 
 	return "", -1, -1, -1
 
+# Get 5'SS, branchpoint, and 3'SS reactivity for a specific sequence
 def get_reac_bp_from_tag(tag, extended_base_data, reac_dir):
 	ext_tag, bp_pos, start_offset, end_offset = \
 		get_extended_window_tag_ss_loc(tag, extended_base_data)
