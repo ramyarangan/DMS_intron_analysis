@@ -57,6 +57,7 @@ def get_features_df():
 	names, _, _, name_symbol_dict = get_names_seqs_from_fasta(fasta_file)
 
 	data = []
+	name_list = []
 	for name in names:
 		feature_vals = []
 
@@ -88,10 +89,8 @@ def get_features_df():
 
 		feature_vals = np.array(feature_vals)
 		if sum(np.isnan(feature_vals)) > 0:
-			print(feature_vals)
 			continue
 		if sum(feature_vals < 0) > 0:
-			print(feature_vals)
 			continue
 		feature_vals = list(feature_vals)
 
@@ -112,11 +111,12 @@ def get_features_df():
 
 		val_dict = dict(zip(columns, feature_vals))
 		data.append(val_dict)
+		name_list += [name]
 
 	# Assemble normalized feature values for columns
 	feature_df = feature_df.append(data, True)
 	feature_df = (feature_df - feature_df.min())/(feature_df.max() - feature_df.min())
-	return feature_df, names
+	return feature_df, name_list, name_symbol_dict
 
 def add_stem_class_feature(feature_df):
 	stem_class_num = feature_df["hasZipper"].values + \
@@ -159,7 +159,7 @@ def plot_components(feature_df, col1, col2, tag1, tag2, plt_name):
 	plt.savefig("../figures/" + plt_name + ".png", format='png', dpi=300)
 
 def make_tsne():
-	feature_df, _ = get_features_df()
+	feature_df, _, _ = get_features_df()
 	feature_array = np.asarray(feature_df.values)
 
 	tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
@@ -172,7 +172,7 @@ def make_tsne():
 		'tSNE1', 'tSNE2', 'tSNE_introns')
 
 def make_pca():
-	feature_df, _ = get_features_df()
+	feature_df, _, _ = get_features_df()
 	feature_array = np.asarray(feature_df)
 
 	pca = PCA(n_components=3)
@@ -189,7 +189,7 @@ def make_pca():
 		'PCA 1', 'PCA 2', 'PCA_introns')
 
 def make_heatmap():
-	feature_df, names = get_features_df()
+	feature_df, names, name_symbol_dict = get_features_df()
 	feature_array = np.asarray(feature_df)
 
 	# Get class labels and colors based on hierarchical clustering
@@ -213,7 +213,7 @@ def make_heatmap():
 
 	f = open("dendrogram_order.txt", 'w')
 	for ii in g.dendrogram_row.reordered_ind:
-		f.write("%s\n" % names[ii])
+		f.write("%s\t%s\n" % (names[ii], name_symbol_dict[names[ii]]))
 	f.close()
 
 	plt.show()
