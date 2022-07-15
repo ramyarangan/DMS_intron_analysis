@@ -232,7 +232,8 @@ def write_table_csv(csv_filename):
 	heading_str += "Zipper stem strand 2 start, Zipper stem strand 2 end, Zipper stem dG (kcal/mol), "
 	heading_str += "BP-3'SS stem strand 1 start, BP-3'SS stem strand 1 end, "
 	heading_str += "BP-3'SS stem strand 2 start, BP-3'SS stem strand 2 end, BP-3'SS stem dG (kcal/mol), "
-	heading_str += "Normalized MLD, Longest stem, 5'SS accessibility, BP accessibility, 3'SS accessibility"
+	heading_str += "Normalized MLD, Longest stem, 5'SS accessibility, BP accessibility, 3'SS accessibility, "
+	heading_str += "DMS-guided Secondary Structure Prediction"
 
 	f.write("%s\n" % heading_str)
 
@@ -244,8 +245,14 @@ def write_table_csv(csv_filename):
 		
 		cov = get_cov(name, reac_cov_dir)
 		csv_str += "," + str(cov)
-		
+
 		if cov < COVERAGE_CUTOFF:
+			f.write("%s\n" % csv_str)
+			continue
+
+		mfe = get_dotbracket(name, secstruct_dir)
+		if mfe == None:
+			print("No MFE for: %s\n" % name)
 			f.write("%s\n" % csv_str)
 			continue
 
@@ -285,6 +292,8 @@ def write_table_csv(csv_filename):
 			csv_str	+= "," + ",".join(ss_reac)
 		else:
 			csv_str += ',,,'
+
+		csv_str += "," + mfe
 
 		f.write("%s\n" % csv_str)
 
