@@ -8,10 +8,8 @@
  
  This Executable Build integrates and extends Open-Source PyMOL.
  Detected 4 CPU cores.  Enabled multithreaded rendering.
-PyMOL>run /Users/ramyar/Dropbox/GradSchool/Research/packages/PyMOL-RosettaServer.py
 PyMOL <---> PyRosetta link started!
 at 127.0.0.1 port 65000
-PyMOL>run /Users/ramyar/Dropbox/GradSchool/Research/packages/RiboVis/ribovis.py
 1018 83.393166
 1019 112.718338
 1020 144.076508
