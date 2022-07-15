@@ -1,7 +1,11 @@
-### Last modified: 1/12/22
-### Example usage: 
-###  python process_xml_reactivities.py ../intron_annot/standard_allsize_extend50.fa combined_1221/rfnorm_reactivity/rfnorm_d_allsize_extend50/ combined_1221/run_data/d_allsize_extend50_stats.txt combined_1221/reactivity/reactivity_allsize_extend50
+"""
+Given xml files from RNAFramework's containing reactivity values, write a .txt file with 
+reactivity values and read coverage across the sequence for every sequence in the fasta file. 
 
+Last modified: 1/12/22
+Example usage: 
+python process_xml_reactivities.py ../intron_annot/standard_allsize_extend50.fa combined_1221/rfnorm_reactivity/rfnorm_d_allsize_extend50/ combined_1221/run_data/d_allsize_extend50_stats.txt combined_1221/reactivity/reactivity_allsize_extend50
+"""
 import os
 import sys
 import numpy as np

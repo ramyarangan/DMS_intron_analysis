@@ -1,3 +1,9 @@
+"""
+Make plots to compare retained intron fraction +/- pladB, correlation between replicates 
+for DMS reactivity values across introns, and correlation between intron vs coding
+region coverage. Process reactivity / coverage data into convenient files for full intron set.
+"""
+
 import xml.etree.ElementTree as ET
 from os import path, remove, makedirs
 from scipy.stats import pearsonr
@@ -12,6 +18,9 @@ intron_fasta_file = "../intron_annot/standard_introns.fa"
 coding_fasta_file = "../intron_annot/coding_orfs_introns.fa"
 intron_to_coding_name_file = "../intron_annot/intron_name_to_coding_orf.txt"
 
+# Replicates are named d3 and d45, and d indicates combined data where
+# reactivity values were analyzed after combining reads from both
+# replicates.
 d_stats_file = 'combined_1221/run_data/d_stats.txt'
 d_coding_stats_file = 'combined_1221/run_data/d_coding_stats.txt'
 d_premrna_stats_file = 'combined_1221/run_data/d_premrna_stats.txt'
@@ -25,11 +34,8 @@ nd_coding_stats_file = 'combined_1221/run_data/nd_coding_stats.txt'
 # Avoid snoRNAs since most reads for these are for the snoRNA rather than the intron
 snorna_introns = ['chrI:142253-142619', 'chrVII:364964-365432', 'chrXIII:499878-500151', 'chrXI:283095-283421',\
 	'chrXII:856574-857057', 'chrXIII:163308-163716', 'chrXIV:721770-722302', 'chrXVI:173665-174072', 'chrXVI:173162-174072']
-stem_introns = ['chrVII:859260-859473', 'chrIV:1355236-1355550', 'chrII:592416-592768', 'chrXII:522669-523028',\
-	'chrXIV:443826-444171', 'chrXIII:225891-226289', 'chrIV:491559-491898', 'chrIII:177906-178213',\
-	'chrXVI:75985-76223', 'chrV:166771-166874']
-special_rpg_introns = ['chrVII:439093-439323', 'chrXVI:404956-405457', 'chrII:604514-604927', 'chrX:73796-74204']
 
+# Get gene symbols for all RPG genes containing introns
 def get_rpg_introns():
 	rpg_introns = []
 
@@ -213,6 +219,8 @@ def get_p_val(reacs_1, reacs_2):
 	[reacs_1_filt, reacs_2_filt] = filter_lists(reacs_1, reacs_2)
 	return spearmanr(np.array(reacs_1_filt), np.array(reacs_2_filt))
 
+# Write a file containing read coverage and reactivity values for a particular
+# sequence and experiment condition
 def write_reactivity(name, exp, cov, outdir):
 	reac = get_float_reac(name, exp)
 
@@ -227,7 +235,7 @@ def write_reactivity(name, exp, cov, outdir):
 			f.write('%f\n' % reac)
 		f.close()
 
-# This is for writing final reactivities that are from an alignment combining all experiments
+# Writing reactivities for all introns from sequencing reads across all replicates
 def write_all_reactivities(outdir='reactivity'):
 	intron_names, intron_seqs, intron_name_seq_dict = get_names_seqs(intron_fasta_file)
 
@@ -256,6 +264,8 @@ def write_all_reactivities(outdir='reactivity'):
 				write_reactivity(cur_coding, 'nd_coding', nd_coding_cov, coding_outdir + '_nd')
 			intron_seq = intron_name_seq_dict[cur_intron]
 
+# Generate plots comparing retained intron fraction +/- pladB
+# Write statistics on retained intron fractions 
 def plot_nodrug_drug_compare(write_ri=True):
 	d3_cov = fill_coverage_dict(d3_stats_file, 'd3', intron_fasta_file, do_rpkm=False)
 	d45_cov = fill_coverage_dict(d45_stats_file, 'd45', intron_fasta_file, do_rpkm=False)
@@ -273,7 +283,7 @@ def plot_nodrug_drug_compare(write_ri=True):
 	nd_ri = []
 	
 	if write_ri:
-		f = open("ri_fractions.txt", 'w')
+		f = open("pladb/ri_fractions.txt", 'w')
 
 	for intron_key in d3_ri_dict.keys():
 		if intron_key not in snorna_introns:
@@ -296,7 +306,8 @@ def plot_nodrug_drug_compare(write_ri=True):
 	plt.savefig('../figures/nodrug_drug_compare.png', format='png', dpi=300)
 	# plt.show()
 
-# Compare the two replicates using data from both sequencing runs
+# Compare reactivity values from the two replicates: 
+# Get correlation, intron, and coding coverage values for each intron-containing gene
 def get_rvals_pvals_covs():
 	d3_cov = fill_coverage_dict(d3_stats_file, 'd3', intron_fasta_file, do_rpk=True)
 	d3_coding_cov = fill_coverage_dict(d3_coding_stats_file, 'd3', coding_fasta_file, do_rpk=True)
@@ -360,31 +371,13 @@ def get_covs_rvals_names_list(log_covs, rvals, names, names_list):
 			new_rvals += [rvals[ii]]
 	return (new_log_covs, new_rvals)
 
-def plot_coverage_rval(rvals, covs, coding_covs, names, add_rpgs=True, add_special_rpgs=True):
-	num_05 = sum(np.array(rvals) > 0.5)
-	# num_05 = sum(np.array(covs) > 1971)
-	print("Number of constructs with over 0.5 reactivity correlation: ")
-	print(num_05)
-
-	num_05 = sum(np.array(rvals) > 0.6)
-	print("Number of constructs with over 0.6 reactivity correlation: ")
-	print(num_05)
-
-	num_05 = sum(np.array(rvals) > 0.7)
-	print("Number of constructs with over 0.7 reactivity correlation: ")
-	print(num_05)
-
-	plt.hist(rvals, color='forestgreen', alpha=0.85)
-	plt.show()
-
+# Plot coverage vs replicate correlation for intron regions and coding regions
+def plot_coverage_rval(rvals, covs, coding_covs, names, add_rpgs=True):
 	log_covs = np.log(np.array(covs))
 	plt.scatter(log_covs, rvals, color="black", label="All introns", s=10)
 	if add_rpgs:
 		(rpg_log_covs, rpg_rvals) = get_covs_rvals_names_list(log_covs, rvals, names, all_rpg_introns)
 		plt.scatter(rpg_log_covs, rpg_rvals, color="red", label="RPG introns", s=10)
-	if add_special_rpgs:
-		(rpg_log_covs, rpg_rvals) = get_covs_rvals_names_list(log_covs, rvals, names, special_rpg_introns)
-		plt.scatter(rpg_log_covs, rpg_rvals, color="gold", edgecolors='black', label="RPG introns putative structure", s=10)
 
 	locs, labels = plt.xticks()
 	new_labels = np.exp(np.array(locs))
@@ -393,7 +386,7 @@ def plot_coverage_rval(rvals, covs, coding_covs, names, add_rpgs=True, add_speci
 	plt.title('R value correlation between replicates vs total read coverage')
 	plt.xlabel('Average coverage (reads per base)')
 	plt.ylabel('R value')
-	if add_rpgs or add_special_rpgs:
+	if add_rpgs:
 		plt.legend()
 	plt.savefig('../figures/coverage_rval.png', format='png', dpi=300)
 	# plt.show()
@@ -409,6 +402,8 @@ def plot_coverage_rval(rvals, covs, coding_covs, names, add_rpgs=True, add_speci
 	plt.ylabel('R value')
 	plt.show()
 
+# Plot histogram of average retained intron fraction
+# Plot relationship between coverage and retained intron fraction
 def plot_ri_fraction():
 	d3_cov = fill_coverage_dict(d3_stats_file, 'd3', intron_fasta_file, do_rpkm=True)
 	d3_coding_cov = fill_coverage_dict(d3_coding_stats_file, 'd3', coding_fasta_file, do_rpkm=True)
@@ -436,6 +431,7 @@ def plot_ri_fraction():
 	print("Cov RI correlation:")
 	print(pearsonr(np.array(avg_cov), np.array(ri_fractions)))
 
+# Plot relationship between intron and coding mRNA coverage
 def plot_intron_vs_coding_coverage(intron_covs, coding_covs):
 	r_val = pearsonr(np.array(intron_covs), np.array(coding_covs))
 	print("Correlation between intron coverage and spliced mRNA coverage: %s\n" % str(r_val))
@@ -454,6 +450,6 @@ plot_ri_fraction()
 
 [rvals, pvals, covs, covs_coding, names] = get_rvals_pvals_covs()
 plot_intron_vs_coding_coverage(covs, covs_coding)
-plot_coverage_rval(rvals, covs, covs_coding, names, add_rpgs=True, add_special_rpgs=False)
+plot_coverage_rval(rvals, covs, covs_coding, names, add_rpgs=True)
 
 write_all_reactivities(outdir='combined_1221/reactivity/reactivity')

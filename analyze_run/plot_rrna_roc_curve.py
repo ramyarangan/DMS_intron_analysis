@@ -1,3 +1,8 @@
+"""
+Evaluate DMS reactivity for rRNA residues:
+1. Get / plot correlation with Zubradt, et al. (2017) rRNA reactivity values
+2. Get ROC curve for classifying rRNA base-paired vs unpaired + accessible residues
+"""
 from sklearn import metrics
 from scipy.stats import pearsonr
 import numpy as np
@@ -26,6 +31,8 @@ rrna_len_dict = {
 	'18s': 1800
 }
 
+# Read in pre-computed Solvent Accessible Surface Area data 
+# (computed in PyMOL in with script rrna_secstruct/)
 def get_is_accessible(sasa_filename, sasa_cutoff=2):
 	f = open(sasa_filename)
 	sasa_lines = f.readlines()
@@ -38,41 +45,12 @@ def get_is_accessible(sasa_filename, sasa_cutoff=2):
 
 	return is_accessible
 
-def get_is_accessible_rouskin(rrna_name, sasa_cutoff=2):
-	A_file_18s = 'rrna_secstruct/rouskin_nature_2014/AsolWproN23S.txt'
-	C_file_18s = 'rrna_secstruct/rouskin_nature_2014/CsolWproN23S2.txt'
-
-	f = open(A_file_18s)
-	A_lines = f.readlines()
-	f.close()
-
-	f = open(C_file_18s)
-	C_lines = f.readlines()
-	f.close()
-
-	is_accessible = np.zeros(rrna_len_dict[rrna_name])
-
-	for A_line in A_lines: 
-		A_items = A_line.split()
-		idx = int(A_items[0]) - 1
-		is_accessible[idx] = float(A_items[1])
-
-	for C_line in C_lines:
-		C_items = C_line.split()
-		idx = int(C_items[0]) - 1
-		is_accessible[idx] = max(float(C_items[1]), is_accessible[idx])
-
-	return is_accessible
-
-# filename is a secondary structure file
-# Returns a list of -1 if no info, 0 if not base-paired, 1 if base-paired
-def get_is_base_paired_xtal(rrna_name, do_rouskin=False):
+# Reads in secondary structure file (obtained from DSSR on xtal structure)
+# Returns a list of -1 if no info, 0 if not base-paired and accessible, 1 if base-paired
+def get_is_base_paired_xtal(rrna_name):
 	is_accessible = []
-	if do_rouskin: 
-		is_accessible = get_is_accessible_rouskin(rrna_name)
-	if not do_rouskin:
-		sasa_filename = 'rrna_secstruct/sasa_dotdens1_solvradius3_aN1_cN3_bundle12_' + rrna_name + '.txt'
-		is_accessible = get_is_accessible(sasa_filename) # sasa_dotdens1_solvradius3_aN1_cN3_18s
+	sasa_filename = 'rrna_secstruct/sasa_dotdens1_solvradius3_aN1_cN3_bundle12_' + rrna_name + '.txt'
+	is_accessible = get_is_accessible(sasa_filename) # sasa_dotdens1_solvradius3_aN1_cN3_18s
 	
 	secstruct_filename = secstruct_filename_dict[rrna_name]
 	f = open(secstruct_filename)
@@ -98,7 +76,7 @@ def get_is_base_paired_xtal(rrna_name, do_rouskin=False):
 			is_base_paired += [1]
 	return np.array(is_base_paired)
 
-
+# Read in mutational frequencies from DMS-MaPseq
 def get_mut_freq(mut_freq_file, fasta_name):
 	f = open(mut_freq_file)
 	mut_freq_lines = f.readlines()
@@ -122,6 +100,8 @@ def get_mut_freq(mut_freq_file, fasta_name):
 			freqs = muts/totals
 	return np.array(freqs), np.array(muts), np.array(totals), seq
 
+# Get base-paired positions based on mutational frequencies with a given
+# cutoff for classifying paired from unpaired
 def get_is_base_paired_mutfrac(mut_freq_file, fasta_name, cur_cutoff):
 	f = open(mut_freq_file)
 	mut_freq_lines = f.readlines()
@@ -150,32 +130,10 @@ def get_is_base_paired_mutfrac(mut_freq_file, fasta_name, cur_cutoff):
 			is_base_paired += [0]
 	return np.array(is_base_paired)
 
-# Get reactivity values from xml files for an intron
-def get_reac(fasta_name, reac_dir='combined_1221/'):
-	cur_reac_file = reac_dir + 'rfnorm_reactivity/rfnorm_' + EXP + '_rrna/' + fasta_name + '.xml'
-	if path.exists(cur_reac_file):
-		tree = ET.parse(cur_reac_file)
-		reac_line = tree.getroot()[0][1].text.replace('\n', '')
-		reac_line = reac_line.replace('\t', '')
-		return reac_line.split(',')
-	else:
-		return []
-
-def get_is_base_paired_reactivity(fasta_name, cur_cutoff):
-	reactivities = get_reac(fasta_name)
-	is_base_paired = []
-	for reac in reactivities: 
-		if math.isnan(float(reac)):
-			is_base_paired += [0]
-		elif float(reac) > cur_cutoff:
-			is_base_paired += [0]
-		if float(reac) <= cur_cutoff:
-			is_base_paired += [1]
-	return np.array(is_base_paired)
-
+# Get correlation for mutational frequencies: our data vs Zubradt, et al. (2017)
 def plot_rrna_correlation(rrna_names = ['18s', '25s']):
 	mut_freq_file = "combined_1221/rfcount/" + EXP + "_rrna_all_view.txt"
-	rouskin_mut_freq_file = "rouskin/rfcount/rouskin_rrna_view.txt"
+	rouskin_mut_freq_file = "combined_1221/rfcount/rouskin_rrna_view.txt"
 
 	all_freqs = []
 	all_rouskin_freqs = []
@@ -207,6 +165,8 @@ def plot_rrna_correlation(rrna_names = ['18s', '25s']):
 	plt.scatter(all_freqs, all_rouskin_freqs, color='black', s=2)
 	plt.show()
 
+# Get ROC curve for classifying base-paired from unpaired+accessible 
+# by scanning different cutoffs for mutational frequencies
 def plot_roc_auc_combined(mut_freq_file, rrna_names = ['18s', '25s']):
 	bp_reacs = []
 	unpaired_reacs = []
@@ -215,7 +175,7 @@ def plot_roc_auc_combined(mut_freq_file, rrna_names = ['18s', '25s']):
 	mask_all = []
 	for rrna_name in rrna_names:
 		fasta_name = fasta_name_dict[rrna_name]
-		is_base_paired_xtal = get_is_base_paired_xtal(rrna_name, do_rouskin=False)	
+		is_base_paired_xtal = get_is_base_paired_xtal(rrna_name)	
 		reactivities, _, _, _ = get_mut_freq(mut_freq_file, fasta_name)
 
 		for ii, xtal_bp in enumerate(is_base_paired_xtal):
@@ -268,6 +228,4 @@ def plot_roc_auc_combined(mut_freq_file, rrna_names = ['18s', '25s']):
 	return fprs, tprs
 
 plot_rrna_correlation()
-# plot_roc_auc_combined("combined_1221/rfcount/" + EXP + "_rrna_all_view.txt", rrna_names=['18s'])
-# plot_roc_auc_combined("combined_1221/rfcount/" + EXP + "_rrna_all_view.txt", rrna_names=['25s'])
 plot_roc_auc_combined("combined_1221/rfcount/" + EXP + "_rrna_all_view.txt")

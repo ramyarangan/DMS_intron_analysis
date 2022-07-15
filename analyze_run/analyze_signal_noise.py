@@ -1,3 +1,7 @@
+"""
+Check frequency of A, C, G, and U mutations in DMS and non-DMS conditions
+"""
+
 import numpy as np 
 import sys
 

@@ -1,3 +1,7 @@
+"""
+Compare native secondary structures to DMS-guided secondary structure predictions
+for control RNA's, computing confusion matrix (TP, FP, FN) for stem predictions.
+"""
 import os
 import numpy as np
 from matplotlib import pyplot as plt
@@ -30,6 +34,7 @@ def get_names_seqs_from_fasta(fasta_file):
 	name_seq_dict[names[-1]] = cur_seq
 	return names, seqs, name_seq_dict
 
+# Get secondary structure from file
 def get_dotbracket(name, secstruct_dir):
 	dotbracket_filename = secstruct_dir + name + '_secstruct.txt'
 	if not os.path.exists(dotbracket_filename):
@@ -40,6 +45,7 @@ def get_dotbracket(name, secstruct_dir):
 	f.close()
 	return lines[0].replace('\n', '')
 
+# Get base-pair probability matrix from file
 def get_bpp_matrix(name, secstruct_dir):
 	bpp_matrix_filename = secstruct_dir + name + '_bpp.csv'
 	if not os.path.exists(bpp_matrix_filename):
@@ -57,11 +63,15 @@ def get_bpp_matrix(name, secstruct_dir):
 	
 	return bpp_matrix
 
+# Get minimum free energy structure prediction
+# This will be compared to the native structure along with
+# DMS-guided prediction
 def get_mfe(name, fasta_file, package="vienna"):
 	_, _, name_to_seq_dict = get_names_seqs_from_fasta(fasta_file)
 	seq = name_to_seq_dict[name]
 	return mfe.mfe(seq, package=package)
 
+# Stem class: 5' and 3' strand nucleotides along with basic functions
 class Stem:
 	def __init__(self, strand1_nts, strand2_nts):
 		if len(strand1_nts) != len(strand2_nts):
@@ -71,13 +81,6 @@ class Stem:
 		self.strand2_nts = strand2_nts
 
 	def get_bpp(self, bpp_matrix):
-		#total_bpp = 0
-		#for ii, nt1 in enumerate(self.strand1_nts):
-		#	nt2 = self.strand2_nts[ii]
-		#	total_bpp += bpp_matrix[nt1][nt2]
-		#return total_bpp/len(self.strand1_nts)
-		# Use this maximum approach to match other stem BPP calculations
-		# through the rest of the analyses
 		bpp = 0
 		for ii, nt1 in enumerate(self.strand1_nts):
 			nt2 = self.strand2_nts[ii]
@@ -103,6 +106,10 @@ class Stem:
 			print_str += "%d %d\n" % (n1, self.strand2_nts[ii])
 		return print_str
 
+# Get all stems from the secondary structure in dot-bracket notation
+# Allows for bulges of size at most max_bulge_cnt within a stem
+# Returns a list of stem objects along with a dictionary from nucleotide
+# index to the stem containing it
 def get_stems(dotbracket, max_bulge_cnt=0):
 	base1_stacks = {'{': [], '(': [], '[': [], '<': []}
 	cur_stems = {'{': [], '(': [], '[': [], '<': []}
@@ -161,6 +168,8 @@ def get_stems(dotbracket, max_bulge_cnt=0):
 
 	return stem_list, nt_to_stem_dict
 
+# Get all base pairs in a secondary structure, returns
+# as a dictionary from a nucleotide to its base-pairing partner 
 def get_base_pairs(dotbracket):
 	basepair_dict = {}
 	base1_stacks = {'{': [], '(': [], '[': [], '<': []}
@@ -178,6 +187,8 @@ def get_base_pairs(dotbracket):
 
 	return basepair_dict
 
+# Get the percent of base-pairs in the stem that are matched 
+# in the base-pair dictionary
 def get_perc_match(stem, bp_dict):
 	strand1_nts = stem.strand1_nts
 	strand2_nts = stem.strand2_nts
@@ -191,44 +202,9 @@ def get_perc_match(stem, bp_dict):
 
 	return num_matched/stem.len(), matched_nt
 
-# False negatives here are only based on stems that are present in the 
-# DMS-MaPseq secondary structure, but have low bootstrapping probability
-def get_conf_matrix_from_stem_list_1(dms_struct, native_struct, bpp_matrix, \
-	limits, min_stem_len, perc_match_cutoff, bootstrap_cutoff):
-	dms_stem_list, _ = get_stems(dms_struct)
-	bp_dict = get_base_pairs(native_struct)
-
-	tp = 0 # High helix confidence and in native structure
-	fp = 0 # High helix confidence and not in native structure
-	fn = 0 # Low helix confidence and in native structure
-	tn = 0 # Low helix confidence and not in native structure 
-	for stem in stem_list:
-		# print(stem)
-		bpp = stem.get_bpp(bpp_matrix)
-		if stem.len() > min_stem_len:
-			# Only evaluate stems that are within the limits
-			# of the control structure
-			stem_passes = True
-			if limits[0] != -1:
-				stem_passes = stem.is_in(limits[0], limits[1])
-			if not stem_passes:
-				continue
-
-			perc_match, nt = get_perc_match(stem, bp_dict)
-			if perc_match >= perc_match_cutoff:
-				if bpp >= bootstrap_cutoff:
-					tp += 1
-				else:
-					fn += 1
-			else:
-				if bpp >= bootstrap_cutoff:
-					fp += 1
-				else: 
-					tn += 1
-	return np.array([tp, fp, fn, tn])
-
-# False negatives are based on the stems in the MFE structure
-def get_conf_matrix_from_stem_list_2(dms_struct, native_struct, bpp_matrix, \
+# Compares two secondary structures and identifies true positive, 
+# false positive, and false negative rates
+def get_conf_matrix_from_stem_list(dms_struct, native_struct, bpp_matrix, \
 	limits, min_stem_len, perc_match_cutoff, bootstrap_cutoff):
 	dms_stem_list, _ = get_stems(dms_struct)
 	bp_dict = get_base_pairs(native_struct)
@@ -253,12 +229,17 @@ def get_conf_matrix_from_stem_list_2(dms_struct, native_struct, bpp_matrix, \
 				continue
 
 			perc_match, nt = get_perc_match(stem, bp_dict)
+
 			if bpp < bootstrap_cutoff:
+				# A stem that matches the native structure but has
+				# low confidence estimate is a false negative
 				if perc_match >= perc_match_cutoff:
 					# Separate FN into classes using this
 					fn_nts += [nt]
 				continue
 
+			# Only predicted stems with confidence estimates above the
+			# bootstrap cutoff are positive predictions
 			if perc_match >= perc_match_cutoff:
 				matched_nts += [nt]
 				tp += 1
@@ -268,6 +249,7 @@ def get_conf_matrix_from_stem_list_2(dms_struct, native_struct, bpp_matrix, \
 	fn = 0
 	fn_low_boostrap = 0
 
+	# Go through stems in the native structure to find false negatives
 	for stem in native_stem_list:
 		stem_in_dms = False
 		stem_in_struct_low_bootstrap = False
@@ -276,6 +258,8 @@ def get_conf_matrix_from_stem_list_2(dms_struct, native_struct, bpp_matrix, \
 				stem_in_dms = True
 				break
 		for nt in fn_nts:
+			# Also tabulate false negatives that were in a predicted stem, 
+			# but the stem had low helix confidence estimate
 			if stem.contains(nt):
 				stem_in_struct_low_bootstrap = True
 				break
@@ -290,7 +274,6 @@ def get_conf_matrix_from_stem_list_2(dms_struct, native_struct, bpp_matrix, \
 
 
 # We require min_stem_len base-pairs in a helix of 70% bootstrapping probability
-# for zipper stems and end stems
 def get_confusion_matrix(name, dms_secstruct_dir, native_secstruct_dir, limits, \
 	min_stem_len=4, bootstrap_cutoff=0.7, perc_match_cutoff=0.5, verbose=False, \
 	fasta_file="", do_mfe=False):
@@ -304,14 +287,12 @@ def get_confusion_matrix(name, dms_secstruct_dir, native_secstruct_dir, limits, 
 	bpp_matrix = get_bpp_matrix(name, dms_secstruct_dir)
 	bpp_matrix = np.array(bpp_matrix)
 
-	# cf_matrix = get_conf_matrix_from_stem_list_1(dms_struct, native_struct, bpp_matrix, \
-	# 			limits, min_stem_len, perc_match_cutoff, bootstrap_cutoff)
-
-	tp, fp, fn, tn, fn_low_boostrap = get_conf_matrix_from_stem_list_2(dms_struct, \
+	tp, fp, fn, tn, fn_low_boostrap = get_conf_matrix_from_stem_list(dms_struct, \
 		native_struct, bpp_matrix, limits, min_stem_len, perc_match_cutoff, bootstrap_cutoff)
 
 	return tp, fp, fn, tn, fn_low_boostrap
 
+# Get confusion matrix for each control RNA and make a combined matrix
 def get_total_confusion_matrix(fasta_file="", do_mfe=False, bootstrap_cutoff=0.7, verbose=False):
 	control_names = ["RDN18-1", "RDN5-1", "RDN58-1", "SNR7-L", "SNR19", "HAC1", \
 		"ASH1", "RPS28B", "SFT2", "TRR4", "TRT2", "IMT4", "RPR1"]
@@ -362,6 +343,9 @@ def get_f1_score(confusion_matrix):
 	recall = get_recall(confusion_matrix)
 	return 2 * (precision * recall)/(precision + recall)
 
+# Plot accuracy, precision, and recall over a range of
+# helix confidence estimate cutoff scores, adding in the values for 
+# Vienna MFE predictions as red lines
 def plot_metrics(bootstrap_range):
 	accuracies = []
 	precisions = []
@@ -414,15 +398,20 @@ def plot_metrics(bootstrap_range):
 	plt.show()
 	# plt.savefig("../figures/control_ppv_sens_f1.png", format='png', dpi=300)
 
-get_total_confusion_matrix(verbose=True)
-# get_total_confusion_matrix(verbose=True, bootstrap_cutoff=0)
+# Get precision, recall, F1 score for Vienna MFE predictions
+conf_matrix = get_total_confusion_matrix(fasta_file="../intron_annot/control_RNAs_predicted.fa", do_mfe=True, \
+	verbose=True, bootstrap_cutoff=0)
+print(get_precision(conf_matrix[0:4]))
+print(get_recall(conf_matrix[0:4]))
+print(get_f1_score(conf_matrix[0:4]))
 
+# Get confusion matrix for raw DMS-guided structure prediction
+get_total_confusion_matrix(verbose=True, bootstrap_cutoff=0)
+
+# Get confusion matrix for DMS-guided structure prediction with helix confidence estimate cutoff
+get_total_confusion_matrix(verbose=True)
+
+# Plot precision, recall, F1 score over a range of helix confidence estimate cutoffs
 bootstrap_range = np.arange(0, 1, 0.1)
 plot_metrics(bootstrap_range)
-
-# conf_matrix = get_total_confusion_matrix(fasta_file="../intron_annot/control_RNAs_predicted.fa", do_mfe=True, \
-#	verbose=True, bootstrap_cutoff=0)
-# print(get_precision(conf_matrix[0:4]))
-
-
 

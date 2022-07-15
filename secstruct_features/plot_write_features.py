@@ -196,7 +196,6 @@ def make_heatmap():
 	row_linkage = hierarchy.linkage(distance.pdist(feature_array), method='ward')
 	labels = fcluster(row_linkage, 5, criterion='maxclust')
 	labels = np.array(labels)
-	print(labels)
 	palette = sns.color_palette("deep")
 	palette = [palette[0], palette[1], palette[8] ,palette[6], palette[3]]
 	row_colors = [palette[label - 1] for label in labels]
@@ -213,7 +212,7 @@ def make_heatmap():
 
 	f = open("dendrogram_order.txt", 'w')
 	for ii in g.dendrogram_row.reordered_ind:
-		f.write("%s\t%s\n" % (names[ii], name_symbol_dict[names[ii]]))
+		f.write("%s\t%s\t%d\n" % (names[ii], name_symbol_dict[names[ii]], labels[ii]))
 	f.close()
 
 	plt.show()

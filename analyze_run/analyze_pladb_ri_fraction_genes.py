@@ -1,3 +1,9 @@
+"""
+Compare retained intron fraction after pladB treatment between
+long vs short introns, between RPG introns vs non-RPG introns, and 
+across PWM scores for 5'SS, branchpoint, and 3'SS sequences.
+"""
+
 from matplotlib import pyplot as plt 
 from scipy import stats 
 import pandas as pd 
