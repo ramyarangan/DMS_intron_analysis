@@ -57,7 +57,7 @@ OVERHANG_5PRIME = 50
 OVERHANG_3PRIME = 50
 
 def get_features_df():
-	columns = ["Length", "hasZipper", "ZipperdG", "hasEnd", "EndStemdG", "normMLD", "longestStem", \
+	columns = ["Length", "hasZipper", "ZipperdG", "hasEnd", "EndStemdG", "MEE", "longestStem", \
 		"Average BPP", "Max Gini", "5'SSaccess", "BPaccess", "3'SSaccess"] 
 	feature_df = pd.DataFrame(columns=columns)
 	
@@ -217,7 +217,7 @@ def make_heatmap():
 	g = sns.clustermap(feature_df, row_linkage=opt_row_linkage, method='ward', \
 		col_cluster=False, cmap="BuGn", row_colors=row_colors, cbar_kws={"ticks": [], "shrink": 0.5})
 
-	f = open("dendrogram_order.txt", 'w')
+	f = open("dendrogram_order/dendrogram_order.txt", 'w')
 	for ii in g.dendrogram_row.reordered_ind:
 		f.write("%s\t%s\t%d\n" % (names[ii], name_symbol_dict[names[ii]], labels[ii]))
 	f.close()
@@ -259,8 +259,8 @@ def write_table_csv(csv_filename):
 
 		mfe = get_dotbracket(name, secstruct_dir)
 		if mfe == None:
-			print("No MFE for: %s\n" % name)
-			f.write("%s\n" % csv_str)
+		#	print("No MFE for: %s\n" % name)
+		#	f.write("%s\n" % csv_str)
 			continue
 
 		if intron_len > 200:
@@ -307,8 +307,8 @@ def write_table_csv(csv_filename):
 	f.close()
 	print("Number of long introns with DMS data: %d" % num_long)
 	print("Number of zipper stems: %d" % num_start_zipper)
-	print("Number of stems between BP and 3'SS: %d" % num_end_zipper)
-	print("Number of introns with either zipper or end stem: %d" % num_either_stem)
+	print("Number of downstream stems: %d" % num_end_zipper)
+	print("Number of introns with either zipper or downstream stem: %d" % num_either_stem)
 
 if write_table:
 	write_table_csv(csv_filename)

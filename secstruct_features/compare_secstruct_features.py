@@ -250,7 +250,7 @@ def longest_stem_compare():
 
 	print("Mann Whitney U rank test p value comparing intron / coding longest stem lengths:")
 	compare_intron_coding_vals(intron_stem_lens, coding_stem_lens, "Length of longest stem", 
-		filename='../figures/longest_stem_len_compare', savefig=False)
+		filename='../figures/longest_stem_len_compare', savefig=True)
 
 def stem_len_compare():
 	names, _, _, _ = get_names_seqs_from_fasta(fasta_file)
@@ -262,7 +262,7 @@ def stem_len_compare():
 
 	print("Mann Whitney U rank test p value comparing intron / coding stem lengths:")
 	compare_intron_coding_vals(intron_stem_lens, coding_stem_lens, "Stem lengths",
-		filename='../figures/stem_len_compare', savefig=False)
+		filename='../figures/stem_len_compare', savefig=True)
 
 def bpp_compare(len_cutoff=6):
 	names, _, _, _ = get_names_seqs_from_fasta(fasta_file)
@@ -274,7 +274,7 @@ def bpp_compare(len_cutoff=6):
 
 	print("Mann Whitney U rank test p value comparing intron / coding base-pair probability in stems:")
 	compare_intron_coding_vals(intron_bpps, coding_bpps, "BPP comparison", 
-		filename='../figures/bpp_compare', savefig=False)
+		filename='../figures/bpp_compare', savefig=True)
 
 def gini_compare():
 	names, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
@@ -286,7 +286,7 @@ def gini_compare():
 
 	print("Mann Whitney U rank test p value comparing intron / coding Gini coeffs:")
 	compare_intron_coding_vals(intron_gini, coding_gini, "Gini Coefficient comparison", 
-		filename='../figures/Gini_5000_cutoff', savefig=False)
+		filename='../figures/Gini', savefig=True)
 
 def mee_compare():
 	if not os.path.exists(mee_file):
@@ -302,7 +302,7 @@ def mee_compare():
 
 	print("Mann Whitney U rank test p value comparing normalized MEE:")
 	compare_intron_coding_vals(mee_normalized_intron, mee_normalized_coding, \
-		"Normalized Maximum Extrusion from Ends", filename='../figures/MEE_normalized_violinplot', savefig=False)
+		"Normalized Maximum Extrusion from Ends", filename='../figures/MEE_normalized_violinplot', savefig=True)
 
 def zipper_stem_stats():
 	names, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
@@ -319,9 +319,9 @@ def zipper_stem_stats():
 
 	print("Number of end stems: %d\n" % num_end_stems)
 
-# longest_stem_compare()
+longest_stem_compare()
 # stem_len_compare()
-# bpp_compare()
-# gini_compare()
-# zipper_stem_stats()
+bpp_compare()
+gini_compare()
+zipper_stem_stats()
 mee_compare()
