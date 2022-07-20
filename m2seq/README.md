@@ -1,4 +1,4 @@
-Produces Fig.2D-F, Fig. S4A-C, and Fig. S5.
+### **Fig. 2D-F, Fig. S4A-C, and Fig. S5**
 
 run_m2seq_plots produces the M2-seq plots and secondary structures. Requires Biers package (https://ribokit.github.io/Biers/). The trim sequence positions ensure that reference hairpins are not included in the structure prediction, and should have the same values (27, 44) for all examples included here.
 
