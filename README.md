@@ -24,6 +24,9 @@ This repository contains:
     * Cluster introns by secondary structure features: hierarchical clustering, tSNE, PCA
     * Write table compiling intron information, secondary structures, and structural features
 
+# Producing figures
+Each subdirectory includes a README detailing how to produce analysis figures, along with example figures from each command.
+
 # Requirements
 * xml, scipy, numpy, matplotlib, seaborn, pandas
 * arnie, Vienna
