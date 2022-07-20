@@ -8,12 +8,16 @@ The parameters here point to the following files for intron and coding sequences
 
 Example figures:
 Fig. 4E (output to `../figures/Gini.png`): 
+![Gini](https://user-images.githubusercontent.com/2606810/179928131-4ab75cb9-e46f-44c6-9378-78970f355a18.png)
 
 Fig. 4F (output to `../figures/MEE_normalized_violinplot.png`):
+![MEE_normalized_violinplot](https://user-images.githubusercontent.com/2606810/179928172-4dfef07e-55e2-453b-abde-70615bca15eb.png)
 
 Fig. 4G (output to `../figures/longest_stem_len_compare.png`):
+![longest_stem_len_compare](https://user-images.githubusercontent.com/2606810/179928183-9a859c72-5217-4d6f-86fe-79fa73db54a3.png)
 
 Fig 4H (output to `../figures/bpp_compare.png`):
+![bpp_compare](https://user-images.githubusercontent.com/2606810/179928113-5510ef7b-c3f5-473c-9c70-304476483ae7.png)
 
 
 Example output statistics comparing intron vs coding values. Also includes the number of zipper stems and end stems:
@@ -50,6 +54,7 @@ Run: `python plot_write_features.py --heatmap`
 This function also outputs the introns in the order of the dendrogram to `dendrogram/dendrogram_order.txt`.
 
 Example figure:
+<img width="887" alt="Screen Shot 2022-07-20 at 12 47 31 AM" src="https://user-images.githubusercontent.com/2606810/179928262-ea3efb78-9cbb-43df-b37f-632676472231.png">
 
 Example output class popoulations: 
 ```
@@ -73,6 +78,7 @@ tSNE plot clustering introns by secondary structure features. Note that the clus
 Run: `python plot_write_features.py --tsne`
 
 Example figure (output to `../figures/tSNE_introns.png`): 
+![tSNE_introns](https://user-images.githubusercontent.com/2606810/179928335-89587c8c-3226-4004-99c6-46c1ab02c018.png)
 
 
 ### **Table S2**
