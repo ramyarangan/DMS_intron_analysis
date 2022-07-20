@@ -2,8 +2,8 @@
 Run statistical comparisons between intron and coding sequences for all secondary structure metrics
 Make violin plots comparing distributions
 
-Usage example: 
-python compare_secstruct_features.py ../intron_annot/standard_introns.fa rnastructure_sherlock_1221/intron/ ../analyze_run/combined_1221/reactivity/reactivity_intron/ ../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt mpl_cache/intron_1221.txt ../intron_annot/standard_introns.dat ../intron_annot/coding_orfs_introns.fa rnastructure_sherlock_1221/coding_nd/ ../analyze_run/combined_1221/reactivity/reactivity_coding_nd/ ../analyze_run/combined_1221/rfcount/nd_coding_dedup_view.txt mpl_cache/coding_1221.txt
+Usage exameee: 
+python compare_secstruct_features.py ../intron_annot/standard_introns.fa rnastructure_sherlock_1221/intron/ ../analyze_run/combined_1221/reactivity/reactivity_intron/ ../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt mee_cache/intron_1221.txt ../intron_annot/standard_introns.dat ../intron_annot/coding_orfs_introns.fa rnastructure_sherlock_1221/coding_nd/ ../analyze_run/combined_1221/reactivity/reactivity_coding_nd/ ../analyze_run/combined_1221/rfcount/nd_coding_dedup_view.txt mee_cache/coding_1221.txt
 """
 import sys
 from matplotlib import pyplot as plt 
@@ -21,14 +21,14 @@ fasta_file = sys.argv[1] # "../intron_annot/standard_introns.fa"
 secstruct_dir = sys.argv[2] # 
 cov_reac_dir = sys.argv[3]
 mut_freq_file = sys.argv[4] # '../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt'
-mpl_file = sys.argv[5] # 'mpl_calculations/intron_properties_600_cutoff_1221.txt'
+mee_file = sys.argv[5] # 'mee_calculations/intron_properties_600_cutoff_1221.txt'
 dat_file = sys.argv[6] # "../intron_annot/standard_introns.dat"
 
 fasta_file_coding = sys.argv[7]
 secstruct_dir_coding = sys.argv[8]
 cov_reac_dir_coding = sys.argv[9]
 mut_freq_file_coding = sys.argv[10] # '../analyze_run/combined_1221/rfcount/nd_coding_dedup_view.txt'
-mpl_file_coding = sys.argv[11] # 'mpl_calculations/coding_properties_600_cutoff.txt'
+mee_file_coding = sys.argv[11] # 'mee_calculations/coding_properties_600_cutoff.txt'
 
 
 OVERHANG = 0
@@ -118,42 +118,42 @@ def get_all_longest_stems(names, cov_reac_dir, secstruct_dir, do_overhang=True):
 
 	return all_longest_stems
 
-def write_mpl_to_file(fasta_file, mpl_file, secstruct_dir, cov_reac_dir, \
+def write_mee_to_file(fasta_file, mee_file, secstruct_dir, cov_reac_dir, \
 	do_overhang=True):
-	f = open(mpl_file, 'w')
+	f = open(mee_file, 'w')
 	
 	names, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
 
 	for ii, name in enumerate(names):
-		print("Computing MLD: %d of %d\n" % (ii, len(names)))
+		print("Computing MEE: %d of %d\n" % (ii, len(names)))
 		seq = name_seq_dict[name]
 		overhang = 0
 		if do_overhang:
 			overhang = OVERHANG
-		mpl = get_mpl(name, seq, secstruct_dir, cov_reac_dir, \
+		mee = get_mee(name, seq, secstruct_dir, cov_reac_dir, \
 			overhang_5p=overhang, overhang_3p=overhang)
 		f.write("%s\n" % name)
-		f.write("%f\n" % mpl)
+		f.write("%f\n" % mee)
 
 	f.close()
 
-def get_all_mpl_from_file(fasta_file, mpl_stats_file, min_len=-1):
+def get_all_mee_from_file(fasta_file, mee_stats_file, min_len=-1):
 	_, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
 	
-	f = open(mpl_stats_file)
-	mpl_lines = f.readlines()
+	f = open(mee_stats_file)
+	mee_lines = f.readlines()
 	f.close()
 
-	mpl_dict = {}
+	mee_dict = {}
 
-	for ii in range(int(len(mpl_lines)/2)):
-		name = mpl_lines[2 * ii].replace('\n', '')
+	for ii in range(int(len(mee_lines)/2)):
+		name = mee_lines[2 * ii].replace('\n', '')
 		seq_len = len(name_seq_dict[name])
-		mpl = float(mpl_lines[2 * ii + 1])
-		if mpl != -1 and seq_len > min_len:
-			mpl_dict[name] = mpl
+		mee = float(mee_lines[2 * ii + 1])
+		if mee != -1 and seq_len > min_len:
+			mee_dict[name] = mee
 
-	return mpl_dict
+	return mee_dict
 
 def get_all_gini_coeffs(names, name_seq_dict, mut_freq_file, do_overhang=True):
 	all_gini_coeffs = []
@@ -288,21 +288,21 @@ def gini_compare():
 	compare_intron_coding_vals(intron_gini, coding_gini, "Gini Coefficient comparison", 
 		filename='../figures/Gini_5000_cutoff', savefig=False)
 
-def mpl_compare():
-	if not os.path.exists(mpl_file):
-		write_mpl_to_file(fasta_file, mpl_file, secstruct_dir, cov_reac_dir)
-	if not os.path.exists(mpl_file_coding):
-		write_mpl_to_file(fasta_file_coding, mpl_file_coding, \
+def mee_compare():
+	if not os.path.exists(mee_file):
+		write_mee_to_file(fasta_file, mee_file, secstruct_dir, cov_reac_dir)
+	if not os.path.exists(mee_file_coding):
+		write_mee_to_file(fasta_file_coding, mee_file_coding, \
 			secstruct_dir_coding, cov_reac_dir_coding, do_overhang=False)
 
-	intron_mpl_dict = get_all_mpl_from_file(fasta_file, mpl_file, min_len=0)
-	coding_mpl_dict = get_all_mpl_from_file(fasta_file_coding, mpl_file_coding, min_len=0)
-	mpl_normalized_intron = list(intron_mpl_dict.values())
-	mpl_normalized_coding = list(coding_mpl_dict.values())
+	intron_mee_dict = get_all_mee_from_file(fasta_file, mee_file, min_len=0)
+	coding_mee_dict = get_all_mee_from_file(fasta_file_coding, mee_file_coding, min_len=0)
+	mee_normalized_intron = list(intron_mee_dict.values())
+	mee_normalized_coding = list(coding_mee_dict.values())
 
-	print("Mann Whitney U rank test p value comparing normalized MLD:")
-	compare_intron_coding_vals(mpl_normalized_intron, mpl_normalized_coding, \
-		"Normalized Maximum Path Length", filename='../figures/MLD_normalized_violinplot', savefig=False)
+	print("Mann Whitney U rank test p value comparing normalized MEE:")
+	compare_intron_coding_vals(mee_normalized_intron, mee_normalized_coding, \
+		"Normalized Maximum Extrusion from Ends", filename='../figures/MEE_normalized_violinplot', savefig=False)
 
 def zipper_stem_stats():
 	names, _, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
@@ -324,4 +324,4 @@ def zipper_stem_stats():
 # bpp_compare()
 # gini_compare()
 # zipper_stem_stats()
-mpl_compare()
+mee_compare()

@@ -1,0 +1,12 @@
+Collecting polo
+  Using cached polo-0.5.tar.gz (130 kB)
+Requirement already satisfied: numpy in /usr/local/lib/python3.9/site-packages (from polo) (1.20.3)
+Requirement already satisfied: scipy in /usr/local/lib/python3.9/site-packages (from polo) (1.7.1)
+Building wheels for collected packages: polo
+  Building wheel for polo (setup.py): started
+  Building wheel for polo (setup.py): finished with status 'error'
+  Running setup.py clean for polo
+Failed to build polo
+Installing collected packages: polo
+    Running setup.py install for polo: started
+    Running setup.py install for polo: finished with status 'error'

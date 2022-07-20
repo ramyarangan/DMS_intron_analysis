@@ -11,7 +11,7 @@ import pandas as pd
 import seaborn as sns 
 from secstruct_util import *
 
-MUTFREQ_COVERAGE = 6456 # 1971 * 2
+MUTFREQ_COVERAGE = 6456
 
 def gini(reacs):
 	# Taken from https://neuroplausible.com/gini
@@ -60,7 +60,8 @@ def get_gini_windows(name, seq, mut_freq_file, window_size=20, window_scan=10, \
 
 	return gini_vals
 
-def get_gini_windows_tag(tag, fasta_file, mut_freq_file, window_size=20, window_scan=10):
+def get_gini_windows_tag(tag, fasta_file, mut_freq_file, window_size=20, window_scan=10, 
+	coverage_req=MUTFREQ_COVERAGE):
 	names, seqs, name_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)
 	gini_vals = []
 	num_passing = 0

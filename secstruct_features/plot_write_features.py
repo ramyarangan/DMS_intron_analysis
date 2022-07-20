@@ -2,6 +2,8 @@
 Cluster introns by secondary structure features with hierarchical clustering, tSNE, and PCA. 
 Plot clustering as a heatmap with a dendrogram or as PCA and tSNE components.
 Write a table with all secondary structures and structural features.
+
+Figures 5 - Heatmap and 
 """
 import sys
 import argparse
@@ -44,8 +46,8 @@ fasta_file = "../intron_annot/standard_introns.fa"
 secstruct_dir = "rnastructure_sherlock_1221/intron/"
 dat_file = "../intron_annot/standard_introns.dat"
 reac_cov_dir = "../analyze_run/combined_1221/reactivity/reactivity_intron/"
-mpl_stats_file = "mpl_cache/intron_1221.txt"
-# mpl_stats_file = ""
+mee_stats_file = "mee_cache/intron_mee_1221.txt"
+# mee_stats_file = ""
 extended_dat_file = "../intron_annot/standard_allsize_extend50_baseinfo.dat"
 extended_reac_dir = "../analyze_run/combined_1221/reactivity/reactivity_allsize_extend50/"
 mut_freq_file = '../analyze_run/combined_1221/rfcount/d_all_dedup_view.txt'
@@ -68,9 +70,9 @@ def get_features_df():
 
 		intron_len = get_length(name, fasta_file)
 
-		mpl = get_mpl_from_file(name, mpl_stats_file, reac_cov_dir)
+		mee = get_mee_from_file(name, mee_stats_file, reac_cov_dir)
 		
-		feature_vals += [mpl * intron_len]
+		feature_vals += [mee * intron_len]
 		
 		longest_stem_len = get_longest_stem_len(name, fasta_file, secstruct_dir, reac_cov_dir)
 
@@ -84,7 +86,7 @@ def get_features_df():
 			avg_bpp = sum(bpps)/len(bpps)
 		feature_vals += [avg_bpp]
 
-		gini_vals = get_gini_windows_tag(name, fasta_file, mut_freq_file)
+		gini_vals = get_gini_windows_tag(name, fasta_file, mut_freq_file, coverage_req = 1971 * 2)
 		if len(gini_vals) == 0:
 			gini_vals = [0]
 		feature_vals += [max(gini_vals)]
@@ -198,21 +200,21 @@ def make_heatmap():
 	feature_array = np.asarray(feature_df)
 
 	# Get class labels and colors based on hierarchical clustering
-	row_linkage = hierarchy.linkage(distance.pdist(feature_array), method='ward')
-	labels = fcluster(row_linkage, 5, criterion='maxclust')
+	X = distance.pdist(feature_array)
+	row_linkage = hierarchy.linkage(X, method='ward')
+	opt_row_linkage = hierarchy.optimal_leaf_ordering(row_linkage, X)
+	labels = fcluster(opt_row_linkage, 9, criterion='maxclust')
 	labels = np.array(labels)
 	palette = sns.color_palette("deep")
-	palette = [palette[0], palette[1], palette[8] ,palette[6], palette[3]]
+	# palette = [palette[0], palette[1], palette[8] ,palette[6], palette[3]]
 	row_colors = [palette[label - 1] for label in labels]
-	print("Class 1 size: %d, %f" % (np.sum(labels == 1), np.sum(labels == 1)/len(list(labels))))
-	print("Class 2 size: %d, %f" % (np.sum(labels == 2), np.sum(labels == 2)/len(list(labels))))
-	print("Class 3 size: %d, %f" % (np.sum(labels == 3), np.sum(labels == 3)/len(list(labels))))
-	print("Class 4 size: %d, %f" % (np.sum(labels == 4), np.sum(labels == 4)/len(list(labels))))
-	print("Class 5 size: %d, %f" % (np.sum(labels == 5), np.sum(labels == 5)/len(list(labels))))
+	for ii in range(1, 10):
+		print("Class %d size: %d, %f" % (ii, np.sum(labels == ii), \
+			np.sum(labels == ii)/len(list(labels))))
+	print("Total number of rows: %d" % len(list(labels)))
 
 	# Plot dendogram with clusters shown
-	# pd.set_option("display.max_rows", None, "display.max_columns", None)
-	g = sns.clustermap(feature_df, row_linkage=row_linkage, method='ward', \
+	g = sns.clustermap(feature_df, row_linkage=opt_row_linkage, method='ward', \
 		col_cluster=False, cmap="BuGn", row_colors=row_colors, cbar_kws={"ticks": [], "shrink": 0.5})
 
 	f = open("dendrogram_order.txt", 'w')
@@ -237,7 +239,7 @@ def write_table_csv(csv_filename):
 	heading_str += "Zipper stem strand 2 start, Zipper stem strand 2 end, Zipper stem dG (kcal/mol), "
 	heading_str += "BP-3'SS stem strand 1 start, BP-3'SS stem strand 1 end, "
 	heading_str += "BP-3'SS stem strand 2 start, BP-3'SS stem strand 2 end, BP-3'SS stem dG (kcal/mol), "
-	heading_str += "Normalized MLD, Longest stem, 5'SS accessibility, BP accessibility, 3'SS accessibility, "
+	heading_str += "Normalized maximum end extrusion, Longest stem, 5'SS accessibility, BP accessibility, 3'SS accessibility, "
 	heading_str += "DMS-guided Secondary Structure Prediction"
 
 	f.write("%s\n" % heading_str)
@@ -281,10 +283,10 @@ def write_table_csv(csv_filename):
 		if has_either_stem:
 			num_either_stem += 1
 
-		mpl = get_mpl_from_file(name, mpl_stats_file, reac_cov_dir)
+		mee = get_mee_from_file(name, mee_stats_file, reac_cov_dir)
 		csv_str += ","
-		if mpl > 0:
-			csv_str += '{0:.3f}'.format(mpl)
+		if mee > 0:
+			csv_str += '{0:.3f}'.format(mee)
 
 		longest_stem_len = get_longest_stem_len(name, fasta_file, secstruct_dir, reac_cov_dir)
 		csv_str += ","

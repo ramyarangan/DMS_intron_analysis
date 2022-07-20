@@ -295,7 +295,7 @@ def get_confusion_matrix(name, dms_secstruct_dir, native_secstruct_dir, limits, 
 # Get confusion matrix for each control RNA and make a combined matrix
 def get_total_confusion_matrix(fasta_file="", do_mfe=False, bootstrap_cutoff=0.7, verbose=False):
 	control_names = ["RDN18-1", "RDN5-1", "RDN58-1", "SNR7-L", "SNR19", "HAC1", \
-		"ASH1", "RPS28B", "SFT2", "TRR4", "TRT2", "IMT4", "RPR1"]
+		"ASH1", "RPS28B", "SFT2", "TRR4", "TRT2", "IMT4"]
 	limits = {}
 	for control_name in control_names:
 		limits[control_name] = (-1, -1)
@@ -318,9 +318,9 @@ def get_total_confusion_matrix(fasta_file="", do_mfe=False, bootstrap_cutoff=0.7
 		if control_name in mrna_controls:
 			total_conf_matrix_mrna += confusion_matrix
 
+	print("Total confusion matrix")
+	print(total_conf_matrix)
 	if verbose:
-		print("Total confusion matrix")
-		print(total_conf_matrix)
 		print("Total confusion matrix mRNA")
 		print(total_conf_matrix_mrna)
 
@@ -400,16 +400,22 @@ def plot_metrics(bootstrap_range):
 
 # Get precision, recall, F1 score for Vienna MFE predictions
 conf_matrix = get_total_confusion_matrix(fasta_file="../intron_annot/control_RNAs_predicted.fa", do_mfe=True, \
-	verbose=True, bootstrap_cutoff=0)
-print(get_precision(conf_matrix[0:4]))
-print(get_recall(conf_matrix[0:4]))
-print(get_f1_score(conf_matrix[0:4]))
+	verbose=False, bootstrap_cutoff=0)
+print("Precision: %f" % get_precision(conf_matrix[0:4]))
+print("Recall: %f" % get_recall(conf_matrix[0:4]))
+print("F1 Score: %f" % get_f1_score(conf_matrix[0:4]))
 
 # Get confusion matrix for raw DMS-guided structure prediction
-get_total_confusion_matrix(verbose=True, bootstrap_cutoff=0)
+conf_matrix = get_total_confusion_matrix(verbose=False, bootstrap_cutoff=0)
+print("Precision: %f" % get_precision(conf_matrix[0:4]))
+print("Recall: %f" % get_recall(conf_matrix[0:4]))
+print("F1 Score: %f" % get_f1_score(conf_matrix[0:4]))
 
 # Get confusion matrix for DMS-guided structure prediction with helix confidence estimate cutoff
-get_total_confusion_matrix(verbose=True)
+conf_matrix = get_total_confusion_matrix(verbose=False)
+print("Precision: %f" % get_precision(conf_matrix[0:4]))
+print("Recall: %f" % get_recall(conf_matrix[0:4]))
+print("F1 score: %f" % get_f1_score(conf_matrix[0:4]))
 
 # Plot precision, recall, F1 score over a range of helix confidence estimate cutoffs
 bootstrap_range = np.arange(0, 1, 0.1)

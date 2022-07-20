@@ -470,17 +470,24 @@ def get_nwj(stemG, nt_to_node_dict, bpp_cutoff=0.9, \
 
 	return nwjs
 
-def get_mpl_from_graph(G, node_dict, norm_len, overhang_5p=0, overhang_3p=0):
+def get_mee_from_graph(G, node_dict, norm_len, overhang_5p=0, overhang_3p=0):
 	path_lens = nx.floyd_warshall(G, weight='weight')
 	max_value = 0
 	for cur_key in path_lens.keys():
 		if cur_key < overhang_5p or cur_key > norm_len - overhang_3p:
 			continue
-		cur_max = 0
-		for cur_key2 in path_lens[cur_key].keys():
-			if cur_key2 < overhang_5p or cur_key2 > norm_len - overhang_3p:
-				continue
-			cur_max = max(cur_max, path_lens[cur_key][cur_key2]) 
+		cur_max = min(path_lens[cur_key][node_dict[overhang_5p].base1], \
+			path_lens[cur_key][node_dict[norm_len - overhang_3p - 1].base1])
+		if cur_max/(norm_len - overhang_5p - overhang_3p) > 0.5:
+			print(cur_max)
+			print(path_lens[cur_key][overhang_5p])
+			print(path_lens[cur_key][norm_len - overhang_3p - 1])
+			print(norm_len)
+		# cur_max = 0
+		# for cur_key2 in path_lens[cur_key].keys():
+		#	if cur_key2 < overhang_5p or cur_key2 > norm_len - overhang_3p:
+		#		continue
+		#	cur_max = max(cur_max, path_lens[cur_key][cur_key2]) 
 		max_value = max(max_value, cur_max)
 
 	return max_value/(norm_len - overhang_5p - overhang_3p)
@@ -580,54 +587,54 @@ def get_num_nwj(tag, fasta_file, secstruct_dir, cov_reac_dir):
 
 	return num_nwj
 
-def get_mpl(name, seq, secstruct_dir, cov_reac_dir, overhang_5p=0, overhang_3p=0):
+def get_mee(name, seq, secstruct_dir, cov_reac_dir, overhang_5p=0, overhang_3p=0):
 	coverage = get_cov(name, cov_reac_dir)
 	
 	dotbracket = get_dotbracket(name, secstruct_dir)
 	if dotbracket is None:
 		return -1
 	G, node_dict = get_graph(dotbracket, ss_weight=1, bp_weight=1)
-	return get_mpl_from_graph(G, node_dict, len(dotbracket), overhang_5p=overhang_5p, \
+	return get_mee_from_graph(G, node_dict, len(dotbracket), overhang_5p=overhang_5p, \
 		overhang_3p=overhang_3p)
 
-def get_mpl_tag(tag, fasta_file, secstruct_dir, cov_reac_dir):
+def get_mee_tag(tag, fasta_file, secstruct_dir, cov_reac_dir):
 	names, seqs, _, _ = get_names_seqs_from_fasta(fasta_file)
 	coverage = get_cov(tag, cov_reac_dir)
 
 	if coverage < COVERAGE_CUTOFF:
 		return -1
 
-	mpl = -1
+	mee = -1
 	for name in names:
 		if name == tag:
 			dotbracket = get_dotbracket(name, secstruct_dir)
 			if dotbracket is None:
 				return -1
 			G, node_dict = get_graph(dotbracket, ss_weight=1, bp_weight=1)
-			mpl = get_mpl_from_graph(G, node_dict, len(dotbracket))
+			mee = get_mee_from_graph(G, node_dict, len(dotbracket))
 			break
 
-	return mpl
+	return mee
 
-def get_mpl_from_file(tag, mpl_stats_file, cov_reac_dir):	
-	f = open(mpl_stats_file)
-	mpl_lines = f.readlines()
+def get_mee_from_file(tag, mee_stats_file, cov_reac_dir):	
+	f = open(mee_stats_file)
+	mee_lines = f.readlines()
 	f.close()
 
-	mpl = -1
+	mee = -1
 	
 	coverage = get_cov(tag, cov_reac_dir)
 
 	if coverage < COVERAGE_CUTOFF:
-		return mpl
+		return mee
 
-	for ii in range(int(len(mpl_lines)/2)):
-		name = mpl_lines[2 * ii].replace('\n', '')
+	for ii in range(int(len(mee_lines)/2)):
+		name = mee_lines[2 * ii].replace('\n', '')
 		if name == tag:
-			mpl = float(mpl_lines[2 * ii + 1])
+			mee = float(mee_lines[2 * ii + 1])
 			break
 
-	return mpl
+	return mee
 
 def get_length(tag, fasta_file):
 	_, _, name_to_seq_dict, _ = get_names_seqs_from_fasta(fasta_file)

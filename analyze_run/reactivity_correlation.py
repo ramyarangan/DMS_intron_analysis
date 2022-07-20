@@ -1,4 +1,5 @@
 """
+Fig. 1D
 Make plots to compare retained intron fraction +/- pladB, correlation between replicates 
 for DMS reactivity values across introns, and correlation between intron vs coding
 region coverage. Process reactivity / coverage data into convenient files for full intron set.
