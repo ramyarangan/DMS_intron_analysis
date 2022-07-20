@@ -8,6 +8,7 @@ Predicted secondary structures and base-pairing probabilities are included in `c
 
 Example figure (output to `../figures/control_ppv_sens_f1.png`): 
 
+![control_ppv_sens_f1](https://user-images.githubusercontent.com/2606810/179921863-ddbea04a-ef05-4909-a047-1e6b7f717270.png)
 
 Example output:
 ```
