@@ -293,7 +293,8 @@ def get_confusion_matrix(name, dms_secstruct_dir, native_secstruct_dir, limits, 
 	return tp, fp, fn, tn, fn_low_boostrap
 
 # Get confusion matrix for each control RNA and make a combined matrix
-def get_total_confusion_matrix(fasta_file="", do_mfe=False, bootstrap_cutoff=0.7, verbose=False):
+def get_total_confusion_matrix(fasta_file="", do_mfe=False, bootstrap_cutoff=0.7, \
+	print_summary=False, verbose=False):
 	control_names = ["RDN18-1", "RDN5-1", "RDN58-1", "SNR7-L", "SNR19", "HAC1", \
 		"ASH1", "RPS28B", "SFT2", "TRR4", "TRT2", "IMT4"]
 	limits = {}
@@ -318,8 +319,9 @@ def get_total_confusion_matrix(fasta_file="", do_mfe=False, bootstrap_cutoff=0.7
 		if control_name in mrna_controls:
 			total_conf_matrix_mrna += confusion_matrix
 
-	print("Total confusion matrix")
-	print(total_conf_matrix)
+	if print_summary:
+		print("Total confusion matrix")
+		print(total_conf_matrix)
 	if verbose:
 		print("Total confusion matrix mRNA")
 		print(total_conf_matrix_mrna)
@@ -395,24 +397,27 @@ def plot_metrics(bootstrap_range):
 	print(precisions)
 	print(bootstrap_range)
 	print(f1_scores)
-	plt.show()
-	# plt.savefig("../figures/control_ppv_sens_f1.png", format='png', dpi=300)
+	# plt.show()
+	plt.savefig("../figures/control_ppv_sens_f1.png", format='png', dpi=300)
 
 # Get precision, recall, F1 score for Vienna MFE predictions
+print("Vienna MFE prediction")
 conf_matrix = get_total_confusion_matrix(fasta_file="../intron_annot/control_RNAs_predicted.fa", do_mfe=True, \
-	verbose=False, bootstrap_cutoff=0)
+	print_summary=True, bootstrap_cutoff=0)
 print("Precision: %f" % get_precision(conf_matrix[0:4]))
 print("Recall: %f" % get_recall(conf_matrix[0:4]))
 print("F1 Score: %f" % get_f1_score(conf_matrix[0:4]))
 
 # Get confusion matrix for raw DMS-guided structure prediction
-conf_matrix = get_total_confusion_matrix(verbose=False, bootstrap_cutoff=0)
+print("DMS-guided RNAstructure, no helix confidence estimate cutoff")
+conf_matrix = get_total_confusion_matrix(print_summary=True, bootstrap_cutoff=0)
 print("Precision: %f" % get_precision(conf_matrix[0:4]))
 print("Recall: %f" % get_recall(conf_matrix[0:4]))
 print("F1 Score: %f" % get_f1_score(conf_matrix[0:4]))
 
 # Get confusion matrix for DMS-guided structure prediction with helix confidence estimate cutoff
-conf_matrix = get_total_confusion_matrix(verbose=False)
+print("DMS-guided RNAstructure, helix confidence estimate cutoff 0.7")
+conf_matrix = get_total_confusion_matrix(print_summary=True)
 print("Precision: %f" % get_precision(conf_matrix[0:4]))
 print("Recall: %f" % get_recall(conf_matrix[0:4]))
 print("F1 score: %f" % get_f1_score(conf_matrix[0:4]))
