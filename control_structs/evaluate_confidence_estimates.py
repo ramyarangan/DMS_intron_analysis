@@ -407,6 +407,7 @@ conf_matrix = get_total_confusion_matrix(fasta_file="../intron_annot/control_RNA
 print("Precision: %f" % get_precision(conf_matrix[0:4]))
 print("Recall: %f" % get_recall(conf_matrix[0:4]))
 print("F1 Score: %f" % get_f1_score(conf_matrix[0:4]))
+print()
 
 # Get confusion matrix for raw DMS-guided structure prediction
 print("DMS-guided RNAstructure, no helix confidence estimate cutoff")
@@ -414,13 +415,15 @@ conf_matrix = get_total_confusion_matrix(print_summary=True, bootstrap_cutoff=0)
 print("Precision: %f" % get_precision(conf_matrix[0:4]))
 print("Recall: %f" % get_recall(conf_matrix[0:4]))
 print("F1 Score: %f" % get_f1_score(conf_matrix[0:4]))
+print()
 
 # Get confusion matrix for DMS-guided structure prediction with helix confidence estimate cutoff
 print("DMS-guided RNAstructure, helix confidence estimate cutoff 0.7")
-conf_matrix = get_total_confusion_matrix(print_summary=True)
+conf_matrix = get_total_confusion_matrix(print_summary=True, verbose=True)
 print("Precision: %f" % get_precision(conf_matrix[0:4]))
 print("Recall: %f" % get_recall(conf_matrix[0:4]))
 print("F1 score: %f" % get_f1_score(conf_matrix[0:4]))
+print()
 
 # Plot precision, recall, F1 score over a range of helix confidence estimate cutoffs
 bootstrap_range = np.arange(0, 1, 0.1)
