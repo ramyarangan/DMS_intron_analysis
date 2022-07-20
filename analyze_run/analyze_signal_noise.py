@@ -9,7 +9,7 @@ exp_read_lens = {'d3': 300, 'd': 300, 'nd': 300}
 
 EXP = sys.argv[1] # n3, d3, d45, d
 
-intron_fasta_file = "annot_files/standard_introns.fa"
+intron_fasta_file = "../intron_annot/standard_introns.fa"
 mut_freq_file = "combined_1221/rfcount/" + EXP + "_all_dedup_view.txt"
 stats_file = "combined_1221/run_data/" + EXP + "_stats.txt"
 

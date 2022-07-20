@@ -127,8 +127,8 @@ def compare_rpg_ris():
 			non_rpg_ris += [pladb_ri[cur_key]]
 			non_rpg_ri_ratios += [ri_ratio]
 
-	compare_classes(rpg_ris, non_rpg_ris, "RPG introns", \
-		"Other introns", "RI +pladB", "RPG vs non-RPG retained intron fractions +pladB")
+	#compare_classes(rpg_ris, non_rpg_ris, "RPG introns", \
+	#	"Other introns", "RI +pladB", "RPG vs non-RPG retained intron fractions +pladB")
 	compare_classes(rpg_ri_ratios, non_rpg_ri_ratios, "RPG introns", \
 		"Other introns", "(RI +pladB)/(RI -pladB)", \
 		"RPG vs non-RPG retained intron fraction ratios", \
@@ -151,8 +151,8 @@ def compare_metrics_to_ri(metric_dict, metric_labels):
 
 			metric_vals += [metric_dict[cur_key][ii]]
 
-		plot_scatter(metric_vals, ris, metric_label + "vs RI", \
-			metric_label, "RI")
+		#plot_scatter(metric_vals, ris, metric_label + "vs RI", \
+		#	metric_label, "RI")
 		plot_scatter(metric_vals, ri_ratios, \
 			metric_label + "vs RI ratio", metric_label, "RI ratio")
 
@@ -190,8 +190,8 @@ def compare_long_short_ris():
 			short_ris += [pladb_ri[cur_key]]
 			short_ri_ratios += [ri_ratio]
 
-	compare_classes(long_ris, short_ris, "Long introns", \
-		"Short introns", "RI +pladB", "Long vs short retained intron fractions +pladB")
+	#compare_classes(long_ris, short_ris, "Long introns", \
+	#	"Short introns", "RI +pladB", "Long vs short retained intron fractions +pladB")
 	compare_classes(long_ri_ratios, short_ri_ratios, "Long introns", \
 		"Short introns", "(RI +pladB)/(RI -pladB)", \
 		"Long vs short retained intron fraction ratios", \

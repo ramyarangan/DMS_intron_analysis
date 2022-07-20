@@ -390,7 +390,7 @@ def plot_coverage_rval(rvals, covs, coding_covs, names, add_rpgs=True):
 	if add_rpgs:
 		plt.legend()
 	plt.savefig('../figures/coverage_rval.png', format='png', dpi=300)
-	# plt.show()
+	plt.show()
 
 	log_coding_covs = np.log(np.array(coding_covs))
 	plt.scatter(log_coding_covs, rvals)
@@ -446,11 +446,12 @@ def plot_intron_vs_coding_coverage(intron_covs, coding_covs):
 num_introns = get_max_num_introns()
 
 plot_nodrug_drug_compare()
+plt.show()
  
-plot_ri_fraction()
+# plot_ri_fraction()
 
 [rvals, pvals, covs, covs_coding, names] = get_rvals_pvals_covs()
-plot_intron_vs_coding_coverage(covs, covs_coding)
+# plot_intron_vs_coding_coverage(covs, covs_coding)
 plot_coverage_rval(rvals, covs, covs_coding, names, add_rpgs=True)
 
-write_all_reactivities(outdir='combined_1221/reactivity/reactivity')
+# write_all_reactivities(outdir='combined_1221/reactivity/reactivity')
