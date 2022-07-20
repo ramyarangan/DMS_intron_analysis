@@ -1,4 +1,4 @@
-Produces Fig.2D-F and Fig. S4A-C.
+Produces Fig.2D-F, Fig. S4A-C, and Fig. S5.
 
 run_m2seq_plots is a script to produce plots. Requires Biers package (https://ribokit.github.io/Biers/). The trim sequence ensures that reference hairpins are not included in the structure prediction.
 

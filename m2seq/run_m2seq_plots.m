@@ -14,10 +14,6 @@ function run_m2seq_plots( r_dms, r_nomod, name, output_folder, iterations, offse
     sequence_length = length(sequence);
     trimmed_sequence = sequence(fiveprime_trim:sequence_length-threeprime_trim);
 
-    % Graph the raw data
-    graph_raw(rna_dms, name, 'DMS', output_folder);
-    graph_raw(rna_nomod, name, 'NM', output_folder);
-
     % Compute the Zscore matrix
     Z = output_Zscore_from_rdat( [], r_dms, r_nomod, [], 1, 1 );
     % Subset Zscores to trim ends
@@ -84,30 +80,4 @@ function show_2d_das(bpp, name, offset, output_folder)
         xlabel('Sequence Position', 'FontSize', 20, 'FontWeight', 'bold');
         ylabel('Mutation Position', 'FontSize', 20, 'FontWeight', 'bold');
     saveas(gcf, fullfile(output_folder, [name, '_Z.pdf']))
-end
-    
-function graph_raw(data, name, treatment, output_folder);
-
-    sequence = data.sequence;
-    sequence_length = length(sequence);
-
-    fig = figure
-
-    show_rdat(data);
-    pbaspect([1 1 1]); % Square aspect ratio
-    title([name, ' raw ', treatment])
-    set(gca, 'FontSize', 20)
-    xlabel('Sequence Position', 'FontSize', 30, 'FontWeight', 'bold')
-    ylabel('Mutation Position', 'FontSize', 30, 'FontWeight', 'bold')
-
-    set(gca, 'XTickLabel', (50:50:sequence_length))
-    set(gca, 'XTick', (50:50:sequence_length))
-    set(gca, 'YTickLabel', (50:50:sequence_length))
-    set(gca, 'YTick', (50:50:sequence_length))
-
-    saveas(gcf, fullfile(output_folder, [name, '_', treatment ,'_raw','.pdf']))
-    savefig(fullfile(output_folder, [name, '_', treatment ,'_raw','.fig']))
-    clf
-    close
-
 end
