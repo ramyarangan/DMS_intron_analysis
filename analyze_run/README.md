@@ -45,9 +45,10 @@ DMS validation using rRNA structures and reactivity.
 Run: `python plot_rrna_roc_curve.py`
 
 Example output images:
+
 <img width="556" alt="Screen Shot 2022-07-20 at 12 01 23 AM" src="https://user-images.githubusercontent.com/2606810/179919946-daaca60c-620f-4b51-82a8-f0ddbfe58719.png">
-<img width="551" alt="Screen Shot 2022-07-20 at 12 01 33 AM"![Uploading Screen Shot 2022-07-20 at 12.01.23 AM.png…]()
- src="https://user-images.githubusercontent.com/2606810/179919896-34852e30-35b1-4c54-b0b8-d1bb93ed8cee.png">
+
+<img width="551" alt="Screen Shot 2022-07-20 at 12 01 33 AM" src="https://user-images.githubusercontent.com/2606810/179919896-34852e30-35b1-4c54-b0b8-d1bb93ed8cee.png">
 
 Example output stats:
 ```
