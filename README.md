@@ -28,5 +28,12 @@ This repository contains:
 Each subdirectory includes a README detailing how to produce analysis figures, along with example figures from each command.
 
 # Requirements
-* xml, scipy, numpy, matplotlib, seaborn, pandas
-* arnie, Vienna
+* scipy v1.10.1
+* numpy v1.24.3
+* matplotlib v3.7.1
+* seaborn v0.12.2
+* pandas v2.0.2
+* arnie: https://github.com/DasLab/arnie
+* Vienna2: https://www.tbi.univie.ac.at/RNA/
+
+Installation: Install all requirements (expected time: 1-2 hours) and then clone this repo.
